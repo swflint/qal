@@ -5,7 +5,7 @@ from .digital_library import DigitalLibrary
 
 class ScienceDirect(DigitalLibrary):
 
-    def __init__(self, api_key):
+    def __init__(self, api_key, max_results = 50, start_result = 1):
         super().__init__(name = "science_direct",
                          request_type = "GET",
                          api_key_name = 'apiKey',
@@ -13,6 +13,8 @@ class ScienceDirect(DigitalLibrary):
                          query_url = "https://api.elsevier.com/content/metadata/article",
                          start_key = 'start',
                          num_results_key = 'count',
+                         default_num_results = max_results,
+                         default_start = start_result,
                          query_option_information = { 'query_text': 'query' },
                          additional_query_parameters = { 'httpAccept': 'application/json',
                                                          'view': 'COMPLETE' })
