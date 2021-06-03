@@ -6,7 +6,9 @@ import backoff
 
 from .exceptions import *
 
-class DigitalLibrary:
+from abc import ABCMeta, abstractmethod
+
+class DigitalLibrary(metaclass=ABCMeta):
 
     def __init__(self,
                  name,
@@ -63,8 +65,9 @@ class DigitalLibrary:
                                 params = request_data)
         return response.json()
 
+    @abstractmethod
     def process_results(self, results):
-        pass
+        raise NotImplementedError("Must define result processing logic.")
 
     def has_results(self):
         if self.error:
