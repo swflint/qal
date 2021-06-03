@@ -3,6 +3,7 @@
 !.gitignore
 !.gitmodules
 !.gitkeep
+!.envrc-*
 
 # Emacs Stuff
 *~
