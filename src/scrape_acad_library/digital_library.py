@@ -55,10 +55,10 @@ class DigitalLibrary:
             self.start_key: self.start,
             self.number_results_key: self.num_results
         }
-        for key, value in self.additional_query_parameters:
-            request_data[key] = value
-        for key, value in self.query_data:
-            request_data[key] = value
+        for key in self.additional_query_parameters.keys():
+            request_data[key] = self.additional_query_parameters[key]
+        for key in self.query_data.keys():
+            request_data[key] = self.query_data[key]
         response = requests.get(url = self.query_url,
                                 params = request_data)
         return response.json()
