@@ -10,6 +10,7 @@ setup(name = "scrape_acad_library",
       author_email = "swflint@flintfam.org",
       license = "MIT",
       packages = find_packages(where = "src"),
+      package_dir = {"": "src"},
       install_requires = [
           "requests",
           "backoff",

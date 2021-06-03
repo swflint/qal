@@ -29,6 +29,7 @@
             urllib3
             requests
             backoff
+            scrape-acad-library
             ipython
           ]);
 
