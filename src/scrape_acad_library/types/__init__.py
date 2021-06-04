@@ -13,7 +13,7 @@ class Publication(metaclass=ABCMeta):
 
     def add_search_terms(self, source, search_terms):
         if source in self.search_terms.keys():
-            self.search_terms.append(search_terms)
+            self.search_terms[source].append(search_terms)
         else:
             self.search_terms[source] = [search_terms]
 
