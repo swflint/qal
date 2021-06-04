@@ -4,6 +4,8 @@
 from .digital_library import DigitalLibrary
 from .types import Article, Conference
 
+import re
+
 def sanitize_venue(string):
     string = re.sub(r'proceedings of the', '', string, flags = re.IGNORECASE)
     string = re.sub(r"[0-9]{1,2}(nd|th|rd|st)", "", string)

@@ -4,6 +4,8 @@
 from .digital_library import DigitalLibrary
 from .types import Conference, Article
 
+import re
+
 def sanitize_venue(string):
     # string = re.sub(r"(ACM/)?IEEE(/ACM)?", "", string)
     string = re.sub(r"[0-9]{4}", "", string)
