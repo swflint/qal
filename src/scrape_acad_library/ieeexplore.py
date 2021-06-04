@@ -51,7 +51,7 @@ class IEEEXplore(DigitalLibrary):
                                                       'publication_title': 'publication_title',
                                                       'publication_year': 'publication_year',
                                                       'thesaurus_terms': 'thesaurus_terms' },
-                         additional_query_parameters = { 'format': 'json' })
+                         non_query_parameters = { 'format': 'json' })
 
     def process_results(self, data):
         self.results_total = data['total_records']
