@@ -3,6 +3,7 @@
 
 import requests
 import backoff
+import traceback
 
 from .exceptions import *
 
@@ -85,4 +86,5 @@ class DigitalLibrary(metaclass=ABCMeta):
                 for result in results:
                     yield result
         except:
+            print(traceback.format_exc())
             self.error = True
