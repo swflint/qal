@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from .digital_library import DigitalLibrary
+from .types import Article
 
 class ScienceDirect(DigitalLibrary):
 
@@ -19,7 +20,23 @@ class ScienceDirect(DigitalLibrary):
                          non_query_parameters = { 'httpAccept': 'application/json',
                                                   'view': 'COMPLETE' })
 
-    def process_results(self, results):
-        self.results_total = int(results['search-results']['opensearch:totalResults'])
-        self.start += len(results['entry'])
-        return results['entry']
+    def process_results(self, data):
+        self.results_total = int(data['search-results']['opensearch:totalResults'])
+        self.start += len(data['entry'])
+        results = []
+        for result in data['entry']:
+            identifier = result['dc:identifier']
+            title = result['dc:title']
+            authors = []
+            for author in result['authors']:
+                authors.append(f"{author['given-name']} {author['surname']}")
+            result_type = result['prism:aggregationType']
+            year = result['prism:coverDate'][0]['$'][:4]
+            if result_type == 'journal':
+                result_item = Article(identifier, title, authors, year,
+                                      journal = result['prism:publicationName'],
+                                      volume = result['prism:volume'],
+                                      issue = result['prism:issueIdentifier'],
+                                      abstract = result['prism:teaser'],
+                                      pages = None)
+        return results
