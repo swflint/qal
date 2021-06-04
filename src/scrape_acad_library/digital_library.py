@@ -20,7 +20,7 @@ class DigitalLibrary(metaclass=ABCMeta):
                  num_results_key,
                  start_key,
                  query_option_information,
-                 additional_query_parameters = {},
+                 non_query_parameters = {},
                  default_num_results = 10,
                  default_start = 1):
         self.name = name
@@ -34,9 +34,12 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.start = default_start
         self.results_total = -1
         self.query_option_information = query_option_information
-        self.additional_query_parameters = additional_query_parameters
+        self.non_query_parameters = non_query_parameters
         self.query_data = {}
         self.error = False
+
+    def set_non_query_parameter(self, name, value):
+        self.non_query_parameters[name] = value
         
     def set_query_option(self, name, value):
         if name == "start":
@@ -58,8 +61,8 @@ class DigitalLibrary(metaclass=ABCMeta):
             self.start_key: self.start,
             self.number_results_key: self.num_results
         }
-        for key in self.additional_query_parameters.keys():
-            request_data[key] = self.additional_query_parameters[key]
+        for key in self.non_query_parameters.keys():
+            request_data[key] = self.non_query_parameters[key]
         for key in self.query_data.keys():
             request_data[key] = self.query_data[key]
         response = requests.get(url = self.query_url,

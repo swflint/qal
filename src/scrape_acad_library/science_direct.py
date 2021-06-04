@@ -16,8 +16,8 @@ class ScienceDirect(DigitalLibrary):
                          default_num_results = max_results,
                          default_start = start_result,
                          query_option_information = { 'query_text': 'query' },
-                         additional_query_parameters = { 'httpAccept': 'application/json',
-                                                         'view': 'COMPLETE' })
+                         non_query_parameters = { 'httpAccept': 'application/json',
+                                                  'view': 'COMPLETE' })
 
     def process_results(self, results):
         self.results_total = int(results['search-results']['opensearch:totalResults'])
