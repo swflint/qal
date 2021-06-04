@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from .digital_library import DigitalLibrary
+from .types import Conference, Article
 
 class IEEEXplore(DigitalLibrary):
     def __init__(self, api_key, max_results = 50, start_result = 1):
@@ -39,4 +40,38 @@ class IEEEXplore(DigitalLibrary):
     def process_results(self, data):
         self.results_total = data['total_records']
         self.start += len(data['articles'])
-        return data['articles']
+        results = []
+        for result in data['articles']:
+            item_type = result['content_type']
+            if 'doi' in result.keys():
+                identifier = result['doi']
+            else:
+                identifier = result['article_number']
+            if item_type == 'Conferences':
+                authors = []
+                for author in result['authors']['authors']:
+                    authors.append(author['full_name'])
+                    results.append(Conference(identifier,
+                                          result['title'],
+                                          authors,
+                                          result['publication_year'],
+                                          conference = None,
+                                          book_title = result['publication_title'],
+                                          abstract = result.get('abstract'),
+                                          pages = f'{result["start_page"]}-{result["end_page"]}'))
+            elif item_type == 'Journals':
+                authors = []
+                for author in result['authors']['authors']:
+                    authors.append(author['full_name'])
+                results.append(Article(identifier,
+                                       result['title'],
+                                       authors,
+                                       result['publication_year'],
+                                       journal = result['publication_title'],
+                                       abstract = result.get('abstract'),
+                                       volume = result['volume'],
+                                       issue = result['issue'],
+                                       pages = f'{result["start_page"]}-{result["end_page"]}'))
+            else:
+                print("other")
+        return results
