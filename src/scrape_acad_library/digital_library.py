@@ -50,7 +50,7 @@ class DigitalLibrary(metaclass=ABCMeta):
             try:
                 self.query_data[self.query_option_information[name]] = value
             except KeyError:
-                raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.u")
+                raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
 
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException,
