@@ -4,6 +4,22 @@
 from .digital_library import DigitalLibrary
 from .types import Conference, Article
 
+def sanitize_venue(string):
+    # string = re.sub(r"(ACM/)?IEEE(/ACM)?", "", string)
+    string = re.sub(r"[0-9]{4}", "", string)
+    string = re.sub(r"[0-9]{1,2}(nd|th|rd|st)", "", string)
+    string = re.sub(r"Proceedings?\.?( of)?( the)?", "", string)
+    string = re.sub(r"\bs ", "", string)
+    string = re.sub(r"[\[\]]", "", string)
+    string = re.sub(r"(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeeth|eighteenth|ninteenth|twentieth|twenty|thirtieth|thirty|fourthieth|fourty|fiftieth|fifty|sixtieth|sixty)-?", "", string, flags = re.IGNORECASE)
+    string = re.sub(r"\(.*\)$", "", string)
+    string = re.sub(r"^Annual", "", string)
+    string = re.sub(r"(ACM/IEEE|IEEE/ACM|IEEE|ACM)", "", string)
+    string = re.sub(r"^The ", "", string, flags = re.IGNORECASE)
+    string = re.sub(r"\s+", " ", string).strip()
+    string = string.strip()
+    return string
+
 class IEEEXplore(DigitalLibrary):
     def __init__(self, api_key, max_results = 50, start_result = 1):
         super().__init__(name = 'ieee_explore',
@@ -55,7 +71,7 @@ class IEEEXplore(DigitalLibrary):
                                           result['title'],
                                           authors,
                                           result['publication_year'],
-                                          conference = None,
+                                          conference = sanitize_venue(result['publication_title']),
                                           book_title = result['publication_title'],
                                           abstract = result.get('abstract'),
                                           pages = f'{result["start_page"]}-{result["end_page"]}'))
