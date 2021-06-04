@@ -11,8 +11,10 @@ setup(name = "scrape_acad_library",
       license = "MIT",
       packages = find_packages(where = "src"),
       package_dir = {"": "src"},
+      scripts = [ 'bin/query-acad-library' ],
       install_requires = [
           "requests",
           "backoff",
-          "urllib3"
+          "urllib3",
+          "jsonpickle"
       ])

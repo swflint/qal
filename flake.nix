@@ -22,6 +22,7 @@
               urllib3
               requests
               backoff
+              jsonpickle
             ];
           };
 
@@ -29,6 +30,7 @@
             urllib3
             requests
             backoff
+            jsonpickle
             scrape-acad-library
             ipython
           ]);
