@@ -57,7 +57,6 @@ class SpringerNature(DigitalLibrary):
                                       issue = result['number'],
                                       abstract = result.get('abstract'),
                                       pages = None)
-                result_item.add_search_terms('springer_link', self.query_data)
                 results.append()
             elif result_type == 'Chapter ConferencePaper':
                 result_item = Conference(identifier,
@@ -68,6 +67,5 @@ class SpringerNature(DigitalLibrary):
                                          conference = sanitize_venue(result['publicationName']),
                                          abstract = result.get('abstract'),
                                          pages = None)
-                result_item.add_search_terms('springer_link', self.query_data)
                 results.append(result_item)
         return data['records']

@@ -75,7 +75,6 @@ class IEEEXplore(DigitalLibrary):
                                              book_title = result['publication_title'],
                                              abstract = result.get('abstract'),
                                              pages = f'{result["start_page"]}-{result["end_page"]}')
-                    result_item.add_search_terms('ieee_xplore', self.query_data)
                     results.append(result_item)
             elif item_type == 'Journals':
                 authors = []
@@ -90,7 +89,6 @@ class IEEEXplore(DigitalLibrary):
                                       volume = result['volume'],
                                       issue = result['issue'],
                                       pages = f'{result["start_page"]}-{result["end_page"]}')
-                result_item.add_search_terms('ieee_explore', self.query_data)
                 results.append(result_item)
             else:
                 print("other")
