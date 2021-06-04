@@ -67,27 +67,31 @@ class IEEEXplore(DigitalLibrary):
                 authors = []
                 for author in result['authors']['authors']:
                     authors.append(author['full_name'])
-                    results.append(Conference(identifier,
-                                          result['title'],
-                                          authors,
-                                          result['publication_year'],
-                                          conference = sanitize_venue(result['publication_title']),
-                                          book_title = result['publication_title'],
-                                          abstract = result.get('abstract'),
-                                          pages = f'{result["start_page"]}-{result["end_page"]}'))
+                    result_item = Conference(identifier,
+                                             result['title'],
+                                             authors,
+                                             result['publication_year'],
+                                             conference = sanitize_venue(result['publication_title']),
+                                             book_title = result['publication_title'],
+                                             abstract = result.get('abstract'),
+                                             pages = f'{result["start_page"]}-{result["end_page"]}')
+                    result_item.add_search_terms('ieee_xplore', self.query_data)
+                    results.append(result_item)
             elif item_type == 'Journals':
                 authors = []
                 for author in result['authors']['authors']:
                     authors.append(author['full_name'])
-                results.append(Article(identifier,
-                                       result['title'],
-                                       authors,
-                                       result['publication_year'],
-                                       journal = result['publication_title'],
-                                       abstract = result.get('abstract'),
-                                       volume = result['volume'],
-                                       issue = result['issue'],
-                                       pages = f'{result["start_page"]}-{result["end_page"]}'))
+                result_item = Article(identifier,
+                                      result['title'],
+                                      authors,
+                                      result['publication_year'],
+                                      journal = result['publication_title'],
+                                      abstract = result.get('abstract'),
+                                      volume = result['volume'],
+                                      issue = result['issue'],
+                                      pages = f'{result["start_page"]}-{result["end_page"]}')
+                result_item.add_search_terms('ieee_explore', self.query_data)
+                results.append(result_item)
             else:
                 print("other")
         return results
