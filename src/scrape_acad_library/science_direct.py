@@ -4,6 +4,8 @@
 from .digital_library import DigitalLibrary
 from .types import Article
 
+from time import sleep
+
 class ScienceDirect(DigitalLibrary):
 
     def __init__(self, api_key, max_results = 25, start_result = 1):
@@ -20,6 +22,15 @@ class ScienceDirect(DigitalLibrary):
                          non_query_parameters = { 'httpAccept': 'application/json' })
 
     def process_results(self, data):
+        if 'error-response' in data.keys():
+            if data['error-response']['error_code'] == 'RATE_LIMIT_EXCEEDED':
+                print("Rate Limit Exceeded: Pausing.")
+                sleep(60)
+                return []
+            else:
+                print(f"An error has occured: {data['error-response']}")
+                self.error = True
+                return []
         self.results_total = int(data['search-results']['opensearch:totalResults'])
         self.start += len(data['search-results']['entry'])
         results = []
