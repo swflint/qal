@@ -27,8 +27,10 @@ class ScienceDirect(DigitalLibrary):
             identifier = result['prism:doi']
             title = result['dc:title']
             authors = []
+            if result['authors'] == None:
+                continue
             for author in result['authors']:
-                authors.append(f"{author['$']}")
+                authors.append(author)
             year = result['prism:coverDate'][:4]
             result_item = Article(identifier, title, authors, year,
                                   journal = result['prism:publicationName'],
@@ -36,4 +38,5 @@ class ScienceDirect(DigitalLibrary):
                                   issue = None,
                                   abstract = None,
                                   pages = None)
+            results.append(result_item)
         return results
