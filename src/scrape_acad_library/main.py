@@ -118,6 +118,7 @@ def main():
             results_data = jsonpickle.decode(fd.read())
 
     for result in  api.run():
+        print(f"Adding {result.identifier} to results data.")
         if result.identifier not in results_data.keys():
             results_data[result.identifier] = result
         results_data[result.identifier].add_search_terms(args.library, args.query)
