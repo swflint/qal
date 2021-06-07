@@ -31,8 +31,8 @@ class SpringerNature(DigitalLibrary):
                          api_key_name = 'api_key',
                          api_key = api_key,
                          query_url = "http://api.springernature.com/meta/v2/json",
-                         start_key = 's',
-                         num_results_key = 'p',
+                         start_name = 's',
+                         num_results_name = 'p',
                          default_num_results = max_results,
                          default_start = start_result,
                          query_option_information = { 'query_text': 'q' })

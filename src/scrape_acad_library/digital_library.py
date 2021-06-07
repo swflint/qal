@@ -17,8 +17,8 @@ class DigitalLibrary(metaclass=ABCMeta):
                  api_key_name,
                  api_key,
                  query_url,
-                 num_results_key,
-                 start_key,
+                 num_results_name,
+                 start_name,
                  query_option_information,
                  non_query_parameters = {},
                  default_num_results = 10,
@@ -28,9 +28,9 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.api_key_name = api_key_name
         self.api_key = api_key
         self.query_url = query_url
-        self.number_results_key = num_results_key
+        self.number_results_name = num_results_name
         self.num_results = default_num_results
-        self.start_key = start_key
+        self.start_name = start_name
         self.start = default_start
         self.results_total = -1
         self.query_option_information = query_option_information
@@ -58,8 +58,8 @@ class DigitalLibrary(metaclass=ABCMeta):
     def make_request(self):
         request_data = {
             self.api_key_name: self.api_key,
-            self.start_key: self.start,
-            self.number_results_key: self.num_results
+            self.start_name: self.start,
+            self.number_results_name: self.num_results
         }
         for key in self.non_query_parameters.keys():
             request_data[key] = self.non_query_parameters[key]
