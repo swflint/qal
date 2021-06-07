@@ -20,10 +20,10 @@ class ScienceDirect(DigitalLibrary):
                          non_query_parameters = { 'httpAccept': 'application/json' })
 
     def process_results(self, data):
-        self.results_total = int(data['search-results']['openSearch:totalResults'])
-        self.start += len(data['search-results']['results'])
+        self.results_total = int(data['search-results']['opensearch:totalResults'])
+        self.start += len(data['search-results']['entry'])
         results = []
-        for result in data['search-results']['results']:
+        for result in data['search-results']['entry']:
             identifier = result['prism:doi']
             title = result['dc:title']
             authors = []
