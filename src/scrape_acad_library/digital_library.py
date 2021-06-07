@@ -65,8 +65,9 @@ class DigitalLibrary(metaclass=ABCMeta):
             request_data[key] = self.non_query_parameters[key]
         for key in self.query_data.keys():
             request_data[key] = self.query_data[key]
-        response = requests.get(url = self.query_url,
-                                params = request_data)
+        response = requests.request(method = self.request_type,
+                                    url = self.query_url,
+                                    params = request_data)
         return response.json()
 
     @abstractmethod
