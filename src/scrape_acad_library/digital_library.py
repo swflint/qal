@@ -10,6 +10,11 @@ from .exceptions import *
 from abc import ABCMeta, abstractmethod
 
 class DigitalLibrary(metaclass=ABCMeta):
+    """A representation of a queryable Digital Library.
+    
+    By default, this can handle making a request, provided a query is
+    given.
+    """
 
     def __init__(self,
                  name,
@@ -23,6 +28,21 @@ class DigitalLibrary(metaclass=ABCMeta):
                  non_query_parameters = {},
                  default_num_results = 10,
                  default_start = 1):
+        """Initialize a Digital Library.
+        
+        Parameters:
+        name (string): The name of the Digital library
+        request_type (string): The HTTP request type used by the Digital Library
+        api_key_name (string): What parameter the API Key should be
+        api_key (string): The API Key used in making queries
+        query_url (string): API Endpoint
+        number_results_name (string): The name of the query parameter for the number of results to select
+        start_name (string): The name of the query parameter for the start result
+        query_option_information (dict, symbolic name -> query parameter name): Dictionary describing how to map symbolic query names to parameter names
+        non_query_parameters (dict): Dictionary of parameters not related to the query proper (i.e., what to return, additional authentication information, etc.)
+        default_num_results (int): How many results to grab at a time, by default
+        default_start (int): Where to start grabbing results, by default
+        """
         self.name = name
         self.request_type = request_type
         self.api_key_name = api_key_name
@@ -39,9 +59,11 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.error = False
 
     def set_non_query_parameter(self, name, value):
+        """Set a non-query parameter NAME to VALUE."""
         self.non_query_parameters[name] = value
         
     def set_query_option(self, name, value):
+        """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
         if name == "start":
             self.start = value
         elif name == "num_results":
@@ -56,6 +78,7 @@ class DigitalLibrary(metaclass=ABCMeta):
                           requests.exceptions.RequestException,
                           max_tries = 10)
     def make_request(self):
+        """Make a request."""
         request_data = {
             self.api_key_name: self.api_key,
             self.start_name: self.start,
@@ -72,9 +95,14 @@ class DigitalLibrary(metaclass=ABCMeta):
 
     @abstractmethod
     def process_results(self, results):
+        """Process results (takes a request response object).
+
+         - This should return a list of scrape_acad_library.types.Publication.
+         - If an un-recoverable error occurs, set self.error to true, otherwise, try to recover it."""
         raise NotImplementedError("Must define result processing logic.")
 
     def has_results(self):
+        """Do we expect to have more results?"""
         if self.error:
             return False
         elif self.results_total == -1:
@@ -83,6 +111,7 @@ class DigitalLibrary(metaclass=ABCMeta):
             return self.start < self.results_total
     
     def run(self):
+        """Run a query, as long as possible."""
         try:
             while self.has_results():
                 data = self.make_request()
