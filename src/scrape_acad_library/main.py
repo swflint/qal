@@ -57,6 +57,11 @@ def main():
                         type = int,
                         dest = 'page_size',
                         default = 10)
+
+    parser.add_argument('--number-batches', '-b', metavar = 'N',
+                        type = int
+                        dest = 'batches',
+                        default = -1)
     
     args = parser.parse_args()
 
@@ -117,11 +122,18 @@ def main():
         with open(args.output, 'r') as fd:
             results_data = jsonpickle.decode(fd.read())
 
-    for result in  api.run():
-        print(f"Adding {result.identifier} to results data.")
-        if result.identifier not in results_data.keys():
-            results_data[result.identifier] = result
-        results_data[result.identifier].add_search_terms(args.library, args.query)
-        if args.output:
-            with open(args.output, 'w') as fd:
-                fd.write(jsonpickle.encode(results_data))
+    def do_batch():
+        for results in api.batch():
+            if result.identifier not in results_data.keys():
+                results_data[result.identifier] = result
+            results_data[result.identifier].add_search_terms(args.library, api.query_data)
+            if args.output:
+                with open(args.output, 'w' as fd):
+                    fd.write(jsonpickle.encode(results_data))
+
+    if args.batches > 0:
+        for i in range(args.batches):
+            do_batch()
+    else:
+        while api.has_results():
+            do_batch()
