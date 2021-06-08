@@ -12,6 +12,8 @@ Other digital libraries and document repositories are in the works (including Wi
 
 ### `query-acad-library`
 
+### `auto-query`
+
 ## Obtaining API Keys
 
 Confer with your institution & institutional library before doing so, however, it's fairly easy to obtain keys.

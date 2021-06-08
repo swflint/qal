@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+from scrape_acad_library.autoquery import main
+main()
