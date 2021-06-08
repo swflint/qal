@@ -5,6 +5,7 @@ import os
 import sys
 
 import os.path as osp
+import os
 
 from argparse import ArgumentParser
 
@@ -50,12 +51,18 @@ def make_api_object(site):
 
 def write_status(status):
     vprint(2, "Saving status file.")
+    vprint(3, "Retaining backup copy of status file.")
+    if osp.exists(STATUS_FILE):
+        os.replace(STATUS_FILE, f"{STATUS_FILE}.bak")
     with open(STATUS_FILE, 'w') as fd:
         json.dump(status, fd, indent = True)
     vprint(2, "Saved status file.")
 
 def write_data(results):
     vprint(2, "Saving results data file.")
+    vprint(3, "Retaining backup copy of results file.")
+    if osp.exists(OUT_FILE):
+        os.replace(OUT_FILE, f"{OUT_FILE}.bak")
     with open(OUT_FILE, 'w') as fd:
         fd.write(jsonpickle.encode(results))
     vprint(2, "Saved status file.")
