@@ -42,26 +42,30 @@ def main():
 
     args = parser.parse_args()
 
-    def vprint(message):
+    def vprint(message, stream_like = sys.stderr):
         if args.verbose:
-            print(message, file = sys.stderr)
+            stream_like.write(message)
+            if stream_like is sys.stderr:
+                stream_like.write("\n")
 
     def write_status(status):
-        if args.status_file:
-            with open(args.status_file, 'w') as fd:
-                json.dump(status, fd, indent = True)
+        vprint("Saving status file.")
+        with open(args.status_file, 'w') as fd:
+            json.dump(status, fd, indent = True)
 
     def write_data(results):
-        if args.out_file:
-            with open(args.out_file, 'w') as fd:
-                fd.write(jsonpickle.encode(results))
+        vprint("Saving results data file.")
+        with open(args.out_file, 'w') as fd:
+            fd.write(jsonpickle.encode(results))
 
     plan = {}
+    vprint("Loading plan")
     with open(args.plan_file, 'r') as fd:
         plan = json.load(fd)
 
     status = []
-    if args.status_file and osp.exists(args.status_file):
+    if osp.exists(args.status_file):
+        vprint("Restoring status.")
         with open(args.status_file, 'r') as fd:
             status = json.load(fd)
 
@@ -120,13 +124,14 @@ def main():
     for site_id, site in sites_tqdm:
         query_tqdm = tqdm(enumerate(plan['queries']))
         for query_id, query in query_tqdm:
-            query_tqdm.write("Building API Object.")
+            vprint("Building API Object.", stream_like = query_tqdm)
             api = make_api_object(site)
-            query_tqdm.write("Setting Query Parameters")
+            vprint("Setting Query Parameters", stream_like = query_tqdm)
             set_query_parameters(api, query)
-            query_tqdm.write("Restoring Query Status")
+            vprint("Restoring Query Status", stream_like = query_tqdm)
             restore_query_status(api, site_id, query_id)
             for result in api.run():
+                query_tqdm.write(f"Processing result {result.identifier}.")
                 if result.identifier not in results.keys():
                     results[result.identifier] = results
                 # results[result.identifier].add_search_terms(site['name'], query)
