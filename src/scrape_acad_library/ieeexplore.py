@@ -92,6 +92,4 @@ class IEEEXplore(DigitalLibrary):
                                       issue = None,
                                       pages = None)
                 results.append(result_item)
-            else:
-                print("other")
         return results
