@@ -102,8 +102,7 @@ def main():
             api.set_query_option('num_results', site['num_results'])
 
         if 'options' in site.keys():
-            for key in site['options'].keys():
-                api.set_non_query_parameter(key, site['options'][key])
+            api.set_non_query_parameters(site['options'])
         return api
 
     def restore_query_status(api, site_id, query_id):

@@ -61,6 +61,10 @@ class DigitalLibrary(metaclass=ABCMeta):
     def set_non_query_parameter(self, name, value):
         """Set a non-query parameter NAME to VALUE."""
         self.non_query_parameters[name] = value
+
+    def set_non_query_parameters(self, non_query_parameters):
+        for key in non_query_parameters.keys():
+            self.non_query_parameters[key] = non_query_parameters[key]
         
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
