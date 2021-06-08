@@ -183,17 +183,17 @@ def main():
                             results[result.identifier] = result
                         results[result.identifier].add_search_terms(site['name'], query)
                         write_data(results)
-                        vprint(1, "Updating status matrix.")
-                        status['statuses'][site_id][query_id]['total'] = api.results_total
-                        status['statuses'][site_id][query_id]['start'] = api.start
-                        status['statuses'][site_id][query_id]['number_results'] = api.num_results
-                        status['has_results'][site_id][query_id] = api.has_results()
-                        vprint(1, "Estimating remaining batch size.")
-                        status['batches'][site_id][query_id] = api.estimate_batches_left()
-                        status['max_batches'] = max_runs(status['batches'])
-                        if not status['has_results'][site_id][query_id]:
-                            status['incomplete'] -= 1
-                        write_status(status)
+                    vprint(1, "Updating status matrix.")
+                    status['statuses'][site_id][query_id]['total'] = api.results_total
+                    status['statuses'][site_id][query_id]['start'] = api.start
+                    status['statuses'][site_id][query_id]['number_results'] = api.num_results
+                    status['has_results'][site_id][query_id] = api.has_results()
+                    vprint(1, "Estimating remaining batch size.")
+                    status['batches'][site_id][query_id] = api.estimate_batches_left()
+                    status['max_batches'] = max_runs(status['batches'])
+                    if not status['has_results'][site_id][query_id]:
+                        status['incomplete'] -= 1
+                    write_status(status)
     
     if args.batches > 0:
         for k in trange(args.batches, desc = "Batch", position = 0):
