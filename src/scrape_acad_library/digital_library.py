@@ -5,6 +5,8 @@ import requests
 import backoff
 import traceback
 
+from math import ceil
+
 from .exceptions import *
 
 from abc import ABCMeta, abstractmethod
@@ -131,6 +133,15 @@ class DigitalLibrary(metaclass=ABCMeta):
         except:
             print(traceback.format_exc())
             self.error = True
+
+    def estimate_batches(self):
+        if self.results_total > 0:
+            return ceil(self.results_total / self.num_results)
+        else:
+            return 1000
+
+    def estimate_batches_left(self):
+        return self.estimate_batches() - ceil(self.start / self.num_results)
         
     def run(self):
         """Run a query, as long as possible."""

@@ -13,8 +13,6 @@ from .exceptions import *
 
 from tqdm import trange, tqdm
 
-from math import ceil
-
 import json
 import jsonpickle
 
@@ -153,7 +151,7 @@ def main():
                         status['statuses'][site_id][query_id]['start'] = api.start
                         status['statuses'][site_id][query_id]['number_results'] = api.num_results
                         status['has_results'][site_id][query_id] = api.has_results()
-                        status['batches'][site_id][query_id] = ceil(api.results_total / api.num_results)
+                        status['batches'][site_id][query_id] = api.estimate_batches_left()
                         if status['batches'][site_id][query_id] > status['max_batches']:
                             status['max_batches'] = status['batches'][site_id][query_id]
                         if not status['has_results'][site_id][query_id]:
