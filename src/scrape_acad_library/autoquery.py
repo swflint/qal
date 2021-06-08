@@ -193,8 +193,7 @@ def main():
                         status['max_batches'] = max_runs(status['batches'])
                         if not status['has_results'][site_id][query_id]:
                             status['incomplete'] -= 1
-                    
-                    
+                        write_status(status)
     
     if args.batches > 0:
         for k in trange(args.batches, desc = "Batch", position = 0):
