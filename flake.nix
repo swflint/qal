@@ -23,6 +23,7 @@
               requests
               backoff
               jsonpickle
+              tqdm
             ];
           };
 
@@ -31,6 +32,7 @@
             requests
             backoff
             jsonpickle
+            tqdm
             scrape-acad-library
             ipython
           ]);

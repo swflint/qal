@@ -16,5 +16,6 @@ setup(name = "scrape_acad_library",
           "requests",
           "backoff",
           "urllib3",
-          "jsonpickle"
+          "jsonpickle",
+          "tqdm"
       ])
