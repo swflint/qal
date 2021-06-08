@@ -13,6 +13,8 @@ from .exceptions import *
 
 from tqdm import trange, tqdm
 
+from math import ceil
+
 import json
 import jsonpickle
 
@@ -40,13 +42,21 @@ def main():
                         required = True,
                         dest = 'out_file')
 
+    parser.add_argument('--number-batches', '-b', metavar = "N",
+                        type = int,
+                        dest = 'batches',
+                        default = -1)
+
     args = parser.parse_args()
 
     def vprint(message, stream_like = sys.stderr):
         if args.verbose:
-            stream_like.write(message)
-            if stream_like is sys.stderr:
-                stream_like.write("\n")
+            if type(stream_like) is tqdm:
+                stream_like.display(message)
+            else:
+                stream_like.write(message)
+                if stream_like is sys.stderr:
+                    stream_like.write("\n")
 
     def write_status(status):
         vprint("Saving status file.")
@@ -63,7 +73,7 @@ def main():
     with open(args.plan_file, 'r') as fd:
         plan = json.load(fd)
 
-    status = []
+    status = {}
     if osp.exists(args.status_file):
         vprint("Restoring status.")
         with open(args.status_file, 'r') as fd:
@@ -102,7 +112,7 @@ def main():
             api.set_query_option(key, query[key])
 
     def restore_query_status(api, site_id, query_id):
-        status_item = status[site_id][query_id]
+        status_item = status['statuses'][site_id][query_id]
         if len(status_item.keys()) != 0:
             api.set_query_option('start', status_item['start'])
             api.set_query_option('num_results', status_item['number_results'])
@@ -111,32 +121,59 @@ def main():
     num_sites = len(plan['sites'])
     num_queries = len(plan['queries'])
 
-    if len(status) == 0:
+    if len(status.keys()) == 0:
+        status['statuses'] = []
+        status['has_results'] = []
+        status['incomplete'] = num_sites * num_queries
+        status['batches'] = []
+        status['max_batches'] = 10
         for i in range(num_sites):
             row = []
+            has_results = []
+            batches = []
             for i in range(num_queries):
                 row.append({})
-            status.append(row)
-
+                has_results.append(True)
+                batches.append(10)
+            status['statuses'].append(row)
+            status['has_results'].append(has_results)
+            status['batches'].append(batches)
+            
     write_status(status)
 
-    sites_tqdm = tqdm(enumerate(plan['sites']))
-    for site_id, site in sites_tqdm:
-        query_tqdm = tqdm(enumerate(plan['queries']))
-        for query_id, query in query_tqdm:
-            vprint("Building API Object.", stream_like = query_tqdm)
-            api = make_api_object(site)
-            vprint("Setting Query Parameters", stream_like = query_tqdm)
-            set_query_parameters(api, query)
-            vprint("Restoring Query Status", stream_like = query_tqdm)
-            restore_query_status(api, site_id, query_id)
-            for result in api.run():
-                query_tqdm.write(f"Processing result {result.identifier}.")
-                if result.identifier not in results.keys():
-                    results[result.identifier] = results
-                # results[result.identifier].add_search_terms(site['name'], query)
-                write_data(results)
-                status[site_id][query_id]['total'] = api.results_total
-                status[site_id][query_id]['start'] = api.start
-                status[site_id][query_id]['number_results'] = api.num_results
-                write_status(status)
+    def batch_across():
+        sites_tqdm = tqdm(enumerate(plan['sites']), desc = "Sites", total = num_sites, position = 1)
+        for site_id, site in sites_tqdm:
+            query_tqdm = tqdm(enumerate(plan['queries']), desc = "Query", total = num_queries, position = 2)
+            for query_id, query in query_tqdm:
+                if status['has_results'][site_id][query_id]:
+                    api = make_api_object(site)
+                    set_query_parameters(api, query)
+                    restore_query_status(api, site_id, query_id)
+                    for result in tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.num_results, position = 3):
+                        if result.identifier not in results.keys():
+                            results[result.identifier] = result
+                        results[result.identifier].add_search_terms(site['name'], query)
+                        write_data(results)
+                        status['statuses'][site_id][query_id]['total'] = api.results_total
+                        status['statuses'][site_id][query_id]['start'] = api.start
+                        status['statuses'][site_id][query_id]['number_results'] = api.num_results
+                        status['has_results'][site_id][query_id] = api.has_results()
+                        status['batches'][site_id][query_id] = ceil(api.results_total / api.num_results)
+                        if status['batches'][site_id][query_id] > status['max_batches']:
+                            status['max_batches'] = status['batches'][site_id][query_id]
+                        if not status['has_results'][site_id][query_id]:
+                            status['incomplete'] -= 1
+                    
+                    
+    
+    if args.batches > 0:
+        for k in trange(args.batches, desc = "Batch", position = 0):
+            batch_across()
+    else:
+        with tqdm(total = status['max_batches'], desc = "Batch", position = 0) as progress:
+            while status['incomplete'] > 0:
+                batch_across()
+                progress.update(1)
+                progress.total = status['max_batches']
+                progress.refresh()
