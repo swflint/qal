@@ -29,13 +29,13 @@ def vprint(level, message, stream_like = sys.stderr):
             if stream_like is sys.stderr:
                 stream_like.write("\n")
 
-def make_api_object(site):
+def make_api_object(site, key):
     name = site['name']
     if name == 'springer':
         api = SpringerLink(api_key = site['key'])
     elif name == 'ieee-xplore':
         api = IEEEXplore(api_key = site['key'])
-    elif args.library == 'science-direct':
+    elif name == 'science-direct':
         api = ScienceDirect(api_key = site['key'])
     
     if 'start' in site.keys():
