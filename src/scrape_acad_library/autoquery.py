@@ -29,7 +29,7 @@ def vprint(level, message, stream_like = sys.stderr):
             if stream_like is sys.stderr:
                 stream_like.write("\n")
 
-def make_api_object(site, key):
+def make_api_object(site):
     name = site['name']
     if name == 'springer':
         api = SpringerLink(api_key = site['key'])
