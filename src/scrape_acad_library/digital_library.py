@@ -74,6 +74,10 @@ class DigitalLibrary(metaclass=ABCMeta):
             except KeyError:
                 raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
 
+    def set_query_options(self, query_options):
+        for key in query_options.keys():
+            self.set_query_option(key, query_options[key])
+
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException,
                           max_tries = 10)

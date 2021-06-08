@@ -104,12 +104,7 @@ def main():
         if 'options' in site.keys():
             for key in site['options'].keys():
                 api.set_non_query_parameter(key, site['options'][key])
-            
         return api
-
-    def set_query_parameters(api, query):
-        for key in query.keys():
-            api.set_query_option(key, query[key])
 
     def restore_query_status(api, site_id, query_id):
         status_item = status['statuses'][site_id][query_id]
@@ -148,7 +143,7 @@ def main():
             for query_id, query in query_tqdm:
                 if status['has_results'][site_id][query_id]:
                     api = make_api_object(site)
-                    set_query_parameters(api, query)
+                    api.set_query_options(query)
                     restore_query_status(api, site_id, query_id)
                     for result in tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.num_results, position = 3):
                         if result.identifier not in results.keys():
