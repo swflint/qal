@@ -109,14 +109,26 @@ class DigitalLibrary(metaclass=ABCMeta):
             return True
         else:
             return self.start < self.results_total
-    
+
+    def batch(self):
+        """Query batch by batch."""
+        try:
+            if self.has_results():
+                data = self.make_request()
+                results = self.process_results(data)
+                for result in results:
+                    yield result
+                else:
+                    return []
+        except:
+            print(traceback.format_exc())
+            self.error = True
+        
     def run(self):
         """Run a query, as long as possible."""
         try:
             while self.has_results():
-                data = self.make_request()
-                results = self.process_results(data)
-                for result in results:
+                for result in self.batch():
                     yield result
         except:
             print(traceback.format_exc())
