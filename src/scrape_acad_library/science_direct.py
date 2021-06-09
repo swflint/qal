@@ -34,20 +34,20 @@ class ScienceDirect(DigitalLibrary):
                 print(f"An error has occured: {data['error-response']}")
                 self.error = True
                 return []
-        self.results_total = int(data['search-results']['opensearch:totalResults'])
-        self.start += len(data['search-results']['entry'])
+        self.results_total = int(data['resultsFound'])
+        self.start += len(data['results'])
         results = []
-        for result in data['search-results']['entry']:
-            identifier = result['prism:doi']
-            title = result['dc:title']
+        for result in data['results']:
+            identifier = result['doi']
+            title = result['title']
             authors = []
             if result['authors'] == None:
                 continue
             for author in result['authors']:
-                authors.append(author)
-            year = result['prism:coverDate'][:4]
+                authors.append(author['name'])
+            year = result['publicationDate'][:4]
             result_item = Article(identifier, title, authors, year,
-                                  journal = result['prism:publicationName'],
+                                  journal = result['sourceTitle'],
                                   volume = None,
                                   issue = None,
                                   abstract = None,
