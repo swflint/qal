@@ -93,7 +93,7 @@ def main():
             results_data = jsonpickle.decode(fd.read())
 
     def do_batch():
-        for results in api.batch():
+        for result in api.batch():
             if result.identifier not in results_data.keys():
                 results_data[result.identifier] = result
             results_data[result.identifier].add_search_terms(args.library, api.query_data)
