@@ -57,13 +57,16 @@ class DigitalLibrary(metaclass=ABCMeta):
     def set_options(self, options):
         """Given a dictionary of options, automatically update the API options dictionary."""
         self.options.update(options)
+
+    def set_query_option_non_key(self, key, value):
+        raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
         
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
         try:
             self.query_data[self.query_option_information[name]] = value
         except KeyError:
-            raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
+            self.set_query_option_non_key(name, value)
 
     def set_query_options(self, query_options):
         for key in query_options.keys():
