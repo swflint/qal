@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 
 from . import *
 from .exceptions import *
+from .results_store import ResultsStore
 
 import jsonpickle
 
@@ -116,19 +117,16 @@ def main():
         query[key] = value
         api.set_query_option(key, value)
 
-    results_data = {}
-    if args.output and osp.exists(args.output):
-        with open(args.output, 'r') as fd:
-            results_data = jsonpickle.decode(fd.read())
+    results_store = ResultsStore(args.output, saviness = 1)
+    # results_data = {}
+    # if args.output and osp.exists(args.output):
+    #     with open(args.output, 'r') as fd:
+    #         results_data = jsonpickle.decode(fd.read())
 
     def do_batch():
         for result in api.batch():
-            if result.identifier not in results_data.keys():
-                results_data[result.identifier] = result
-            results_data[result.identifier].add_search_terms(args.library, query)
-            if args.output:
-                with open(args.output, 'w') as fd:
-                    fd.write(jsonpickle.encode(results_data))
+            print("Processing {result.identifier}")
+            results_store.add_item(result, args.library, query)
 
     if args.batches > 0:
         for i in range(args.batches):

@@ -11,6 +11,7 @@ from argparse import ArgumentParser
 
 from . import *
 from .exceptions import *
+from .results_store import ResultsStore
 
 from tqdm import trange, tqdm
 
@@ -18,7 +19,6 @@ import json
 import jsonpickle
 
 VERBOSE = 0
-OUT_FILE = ''
 STATUS_FILE = ''
 
 def vprint(level, message, stream_like = sys.stderr):
@@ -48,15 +48,6 @@ def write_status(status):
         os.replace(STATUS_FILE, f"{STATUS_FILE}.bak")
     with open(STATUS_FILE, 'w') as fd:
         json.dump(status, fd, indent = True)
-    vprint(2, "Saved status file.")
-
-def write_data(results):
-    vprint(2, "Saving results data file.")
-    vprint(3, "Retaining backup copy of results file.")
-    if osp.exists(OUT_FILE):
-        os.replace(OUT_FILE, f"{OUT_FILE}.bak")
-    with open(OUT_FILE, 'w') as fd:
-        fd.write(jsonpickle.encode(results))
     vprint(2, "Saved status file.")
 
 def restore_query_status(status, api, site_id, query_id):
@@ -102,10 +93,8 @@ def main():
 
     global VERBOSE
     global STATUS_FILE
-    global OUT_FILE
     VERBOSE = args.verbose
     STATUS_FILE = args.status_file
-    OUT_FILE = args.out_file
 
     plan = {}
     vprint(2, "Loading plan")
@@ -120,13 +109,8 @@ def main():
             status = json.load(fd)
         vprint(1, "Restored status.")
 
-    results = {}
-    if osp.exists(args.out_file):
-        vprint(2, f"Opening {args.out_file} for restoration.")
-        with open(args.out_file, 'r') as fd:
-            results = jsonpickle.decode(fd.read())
-        vprint(1, f"Restored data.")
-            
+    results = ResultsStore(args.out_file, saviness = 1)
+
     num_sites = len(plan['sites'])
     num_queries = len(plan['queries'])
 
@@ -171,10 +155,7 @@ def main():
                     results_tqdm = tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.page_size, position = 3)
                     for result in results_tqdm:
                         vprint(1, f"Processing {result.identifier}.", results_tqdm)
-                        if result.identifier not in results.keys():
-                            results[result.identifier] = result
-                        results[result.identifier].add_search_terms(site['name'], query)
-                        write_data(results)
+                        results.add_item(result, site['name'], query)
                     vprint(1, "Updating status matrix.")
                     status['statuses'][site_id][query_id]['total'] = api.results_total
                     status['statuses'][site_id][query_id]['start'] = api.start
