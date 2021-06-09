@@ -84,23 +84,28 @@ class DigitalLibrary(metaclass=ABCMeta):
         for key in query_options.keys():
             self.set_query_option(key, query_options[key])
 
+    def construct_headers(self):
+        return { }
+
+    def construct_parameters(self):
+        return { }
+
+    def construct_body(self):
+        return None
+
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException,
                           max_tries = 10)
     def make_request(self):
         """Make a request."""
-        request_data = {
-            self.api_key_name: self.api_key,
-            self.start_name: self.start,
-            self.number_results_name: self.num_results
-        }
-        for key in self.non_query_parameters.keys():
-            request_data[key] = self.non_query_parameters[key]
-        for key in self.query_data.keys():
-            request_data[key] = self.query_data[key]
+        headers = self.construct_headers()
+        params = self.construct_parameters()
+        body = self.construct_body()
         response = requests.request(method = self.request_type,
                                     url = self.query_url,
-                                    params = request_data)
+                                    params = params,
+                                    headers = headers,
+                                    data = body)
         return response.json()
 
     @abstractmethod

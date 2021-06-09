@@ -55,6 +55,14 @@ class IEEEXplore(DigitalLibrary):
                                                       'thesaurus_terms': 'thesaurus_terms' },
                          non_query_parameters = { 'format': 'json' })
 
+    def construct_parameters(self):
+        params = { 'start_record': self.start,
+                   'max_results': self.num_results,
+                   'format': 'json',
+                   'apikey': self.api_key }
+        params.update(self.query_data)
+        return params
+
     def process_results(self, data):
         self.results_total = data['total_records']
         self.start += len(data['articles'])

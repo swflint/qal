@@ -37,6 +37,13 @@ class SpringerNature(DigitalLibrary):
                          default_start = start_result,
                          query_option_information = { 'query_text': 'q' })
 
+    def construct_parameters(self):
+        params = { 's': self.start,
+                   'p': self.num_results,
+                   'api_key': self.api_key}
+        params.update(self.query_data)
+        return params
+
     def process_results(self, data):
         self.results_total = int(data['result'][0]['total'])
         self.start += int(data['result'][0]['recordsDisplayed'])

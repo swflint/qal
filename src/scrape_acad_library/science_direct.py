@@ -4,8 +4,7 @@
 from .digital_library import DigitalLibrary
 from .types import Article
 
-import backoff
-import requests
+import json
 
 from time import sleep
 
@@ -55,18 +54,12 @@ class ScienceDirect(DigitalLibrary):
             results.append(result_item)
         return results
 
-    @backoff.on_exception(backoff.expo,
-                          requests.exceptions.RequestException,
-                          max_tries = 10)
-    def make_request(self):
-        json_data = {}
-        json_data['offset'] = self.start
-        json_data['show'] = self.num_results
-        for key in self.query_data.keys():
-            json_data[key] = self.query_data[key]
-        response = requests.request(method = "PUT",
-                                    url = self.query_url,
-                                    headers = { 'Accept': 'application/json',
-                                                'X-ELS-APIKey': self.api_key },
-                                    json = json_data)
-        return response.json()
+    def construct_headers(self):
+        return { 'Accept': 'application/json',
+                 'X-ELS-APIKey': self.api_key }
+
+    def construct_body(self):
+        body_data = { 'offset': self.start,
+                      'show': self.num_results }
+        body_data.update(self.query_data)
+        return json.dumps(body_data)
