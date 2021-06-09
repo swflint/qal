@@ -4,6 +4,7 @@
 !.gitmodules
 !.gitkeep
 !.envrc-*
+!.pre-commit-config.yaml
 
 # Emacs Stuff
 *~
