@@ -12,12 +12,18 @@ class ScienceDirect(DigitalLibrary):
 
     def __init__(self, api_key, max_results = 25, start_result = 1):
         super().__init__(name = "science_direct",
+                         description = "Elsevier Science Direct",
                          request_type = "PUT",
                          api_key = api_key,
                          api_endpoint = "https://api.elsevier.com/content/search/sciencedirect",
                          page_size = max_results,
                          start = start_result,
-                         query_option_information = { 'query_text': 'qs' })
+                         query_option_information = { 'query_text': (True, "Boolean match expression", 'qs'),
+                                                      'year': (True, "Match year", 'date'),
+                                                      'issue': (True, "Match issue.", 'issue'),
+                                                      'publication_title': (True, "Match parent title.", 'pub'),
+                                                      'title': (True, "Match title.", 'title'),
+                                                      'volume': (True, "Match volume.", 'volume') })
 
     def process_results(self, data):
         if 'error-response' in data.keys():

@@ -27,12 +27,13 @@ def sanitize_venue(string):
 class SpringerNature(DigitalLibrary):
     def __init__(self, api_key, max_results = 50, start_result = 1):
         super().__init__(name = 'springer_nature',
+                         description = 'Springer Link',
                          request_type = 'GET',
                          api_key = api_key,
                          api_endpoint = "http://api.springernature.com/meta/v2/json",
                          page_size = max_results,
                          start = start_result,
-                         query_option_information = { 'query_text': 'q' })
+                         query_option_information = { 'query_text': (True, 'Boolean match expression.', 'q') })
 
     def construct_parameters(self):
         params = { 's': self.start,
