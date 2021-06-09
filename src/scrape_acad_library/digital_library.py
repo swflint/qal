@@ -60,15 +60,10 @@ class DigitalLibrary(metaclass=ABCMeta):
         
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
-        if name == "start":
-            self.start = value
-        elif name == "page_size":
-            self.page_size = value
-        else:
-            try:
-                self.query_data[self.query_option_information[name]] = value
-            except KeyError:
-                raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
+        try:
+            self.query_data[self.query_option_information[name]] = value
+        except KeyError:
+            raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
 
     def set_query_options(self, query_options):
         for key in query_options.keys():

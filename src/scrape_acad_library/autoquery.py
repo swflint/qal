@@ -40,10 +40,10 @@ def make_api_object(site):
         api = ScienceDirect(api_key = site['key'])
     
     if 'start' in site.keys():
-        api.set_query_option('start', site['start'])
+        api.start = site['start']
 
-    if 'num_results' in site.keys():
-        api.set_query_option('num_results', site['num_results'])
+    if 'page_size' in site.keys():
+        api.page_size = site['page_size']
 
     if 'options' in site.keys():
         api.set_non_query_parameters(site['options'])
@@ -70,8 +70,8 @@ def write_data(results):
 def restore_query_status(status, api, site_id, query_id):
     status_item = status['statuses'][site_id][query_id]
     if len(status_item.keys()) != 0:
-        api.set_query_option('start', status_item['start'])
-        api.set_query_option('page_size', status_item['page_size'])
+        api.start = status_item['start']
+        api.page_size = status_item['page_size']
         api.results_total = status_item['total']
 
 def max_runs(batches):
@@ -176,7 +176,7 @@ def main():
                     api.set_query_options(query)
                     vprint(4, "Restoring query status.")
                     restore_query_status(status, api, site_id, query_id)
-                    results_tqdm = tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.num_results, position = 3)
+                    results_tqdm = tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.page_size, position = 3)
                     for result in results_tqdm:
                         vprint(1, f"Processing {result.identifier}.", results_tqdm)
                         if result.identifier not in results.keys():
