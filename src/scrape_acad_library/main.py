@@ -16,12 +16,23 @@ import jsonpickle
 def main():
     parser = ArgumentParser(description = "Scrape & Mine various academic digital libraries.")
 
+    parser.add_argument('--list-libraries', '-L',
+                        help = "list known libraries",
+                        dest = 'list_libraries',
+                        action = 'store_true',
+                        default = False)
+
     parser.add_argument('--library', '-l', metavar = 'DIGITAL_LIBRARY',
                         help = "select which digital library is used",
                         type = str,
                         choices = apis.keys(),
-                        dest = 'library',
-                        required = True)
+                        dest = 'library')
+
+    parser.add_argument('--describe', '-d',
+                        help = "desribe query options for a specific library",
+                        dest = 'describe_library',
+                        action = 'store_true',
+                        default = False)
     
     parser.add_argument('--api-key', '-k', metavar = "KEY",
                         help = "the API key used for making requests",
@@ -43,7 +54,6 @@ def main():
     parser.add_argument('--results', '-r', metavar = 'RESULTS.JSON',
                         help = "name of file in which to store results",
                         type = str,
-                        required = True,
                         dest = 'output')
 
     parser.add_argument('--start', '-s', metavar = 'N',
@@ -65,14 +75,31 @@ def main():
     
     args = parser.parse_args()
 
+    if args.list_libraries:
+        print("Known Libraries:")
+        for key in apis.keys():
+            api = make_api(key, 'x')
+            print(f" - {key}: {api.describe()}")
+        sys.exit(0)
+
+    if args.library is None:
+        parser.error("A library is required.")
+
+    if args.describe_library:
+        api = make_api(args.library, 'x')
+        print(api.describe_options())
+        sys.exit(0)
+
     key = None
     if args.api_key:
         key = args.api_key
     elif os.environ.get('LIBRARY_API_KEY'):
         key = os.environ.get('LIBRARY_API_KEY')
     else:
-        print("An API key must be provided as an argument or in the LIBRARY_API_KEY environment variable.", file = sys.stderr)
-        sys.exit(1)
+        parser.error("An API key must be provided as an argument or in the LIBRARY_API_KEY environment variable.")
+
+    if not args.output:
+        parser.error("A results storage file must be provided.")
 
     api = make_api(args.library, key)
     api.start = args.start
