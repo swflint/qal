@@ -16,7 +16,7 @@
         packages = rec {
           scrape-acad-library = pkgs.python3.pkgs.buildPythonPackage {
             pname = "scrape_acad_library";
-            version = "0.0.1";
+            version = "0.5.0";
             src = ./.;
             propagatedBuildInputs = with pkgs.python3.pkgs ; [
               urllib3
