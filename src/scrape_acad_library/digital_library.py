@@ -131,12 +131,14 @@ class DigitalLibrary(metaclass=ABCMeta):
             self.error = True
 
     def estimate_batches(self):
+        """Estimate the total number of batches."""
         if self.results_total > 0:
             return ceil(self.results_total / self.page_size)
         else:
             return 1000
 
     def estimate_batches_left(self):
+        """Estimate the number of batches that are left."""
         return self.estimate_batches() - ceil(self.start / self.page_size)
         
     def run(self):
