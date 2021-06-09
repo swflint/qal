@@ -1,0 +1,6 @@
+pre-commit
+requests
+backoff
+urllib3
+jsonpickle
+tqdm
