@@ -11,6 +11,8 @@ from .exceptions import *
 
 from abc import ABCMeta, abstractmethod
 
+from io import StringIO
+
 class DigitalLibrary(metaclass=ABCMeta):
     """A representation of a queryable Digital Library.
     
@@ -20,6 +22,7 @@ class DigitalLibrary(metaclass=ABCMeta):
 
     def __init__(self,
                  name,
+                 description,
                  request_type,
                  api_key,
                  api_endpoint,
@@ -38,6 +41,7 @@ class DigitalLibrary(metaclass=ABCMeta):
         start (int): Where to start grabbing results, by default
         """
         self.name = name
+        self.description = description
         self.request_type = request_type
         self.api_key = api_key
         self.api_endpoint = api_endpoint
@@ -50,6 +54,18 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.query_data = {}
         self.error = False
 
+    def describe(self):
+        return self.description
+
+    def describe_options(self):
+        description_output = ''
+        with StringIO() as fd:
+            fd.write("Known Query Options:\n")
+            for key in self.query_option_information.keys():
+                fd.write(f" - {key} - {self.query_option_information[key][1]}\n")
+            description_output = fd.getvalue()
+        return description_output
+
     def set_option(self, name, value):
         """Set a non-query parameter NAME to VALUE."""
         self.options[name] = value
@@ -59,13 +75,17 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.options.update(options)
 
     def set_query_option_non_key(self, key, value):
+        """If a key is not found in the query option information, use this method to handle it.
+
+        By default, an error will be raised.  Override to change this behavior."""
         raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
         
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
-        try:
-            self.query_data[self.query_option_information[name]] = value
-        except KeyError:
+        option_information = self.query_option_information.get(name)
+        if option_information and option_information[0]:
+            self.query_data[option_information[2]] = value
+        else:
             self.set_query_option_non_key(name, value)
 
     def set_query_options(self, query_options):
