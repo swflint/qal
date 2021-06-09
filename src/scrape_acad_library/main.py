@@ -110,8 +110,10 @@ def main():
             (key, value) = option.split('=', 1)
             api.set_option(key, value)
 
+    query = {}
     for query_item in args.query:
         (key, value) = query_item.split('=', 1)
+        query[key] = value
         api.set_query_option(key, value)
 
     results_data = {}
@@ -123,7 +125,7 @@ def main():
         for result in api.batch():
             if result.identifier not in results_data.keys():
                 results_data[result.identifier] = result
-            results_data[result.identifier].add_search_terms(args.library, api.query_data)
+            results_data[result.identifier].add_search_terms(args.library, query)
             if args.output:
                 with open(args.output, 'w') as fd:
                     fd.write(jsonpickle.encode(results_data))
