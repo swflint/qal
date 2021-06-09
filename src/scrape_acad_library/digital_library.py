@@ -75,9 +75,13 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.options.update(options)
 
     def set_query_option_non_key(self, key, value):
-        """If a key is not found in the query option information, use this method to handle it.
+        """If a query option is not modified by setting a key in query_data, this is called.
 
-        By default, an error will be raised.  Override to change this behavior."""
+        Note: If an API has an option that is defined in
+        query_option_information as not being a key-to-key
+        translation, this is used.  Override as needed.
+
+        """
         raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
         
     def set_query_option(self, name, value):
@@ -85,8 +89,10 @@ class DigitalLibrary(metaclass=ABCMeta):
         option_information = self.query_option_information.get(name)
         if option_information and option_information[0]:
             self.query_data[option_information[2]] = value
-        else:
+        elif option_information and (not option_information[0]):
             self.set_query_option_non_key(name, value)
+        else:
+            raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
 
     def set_query_options(self, query_options):
         for key in query_options.keys():
