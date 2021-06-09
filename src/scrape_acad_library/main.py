@@ -59,7 +59,7 @@ def main():
                         default = 10)
 
     parser.add_argument('--number-batches', '-b', metavar = 'N',
-                        type = int
+                        type = int,
                         dest = 'batches',
                         default = -1)
     
@@ -128,7 +128,7 @@ def main():
                 results_data[result.identifier] = result
             results_data[result.identifier].add_search_terms(args.library, api.query_data)
             if args.output:
-                with open(args.output, 'w' as fd):
+                with open(args.output, 'w') as fd:
                     fd.write(jsonpickle.encode(results_data))
 
     if args.batches > 0:
