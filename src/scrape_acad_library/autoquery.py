@@ -71,7 +71,7 @@ def restore_query_status(status, api, site_id, query_id):
     status_item = status['statuses'][site_id][query_id]
     if len(status_item.keys()) != 0:
         api.set_query_option('start', status_item['start'])
-        api.set_query_option('num_results', status_item['number_results'])
+        api.set_query_option('page_size', status_item['page_size'])
         api.results_total = status_item['total']
 
 def max_runs(batches):
@@ -186,7 +186,7 @@ def main():
                     vprint(1, "Updating status matrix.")
                     status['statuses'][site_id][query_id]['total'] = api.results_total
                     status['statuses'][site_id][query_id]['start'] = api.start
-                    status['statuses'][site_id][query_id]['number_results'] = api.num_results
+                    status['statuses'][site_id][query_id]['page_size'] = api.page_size
                     status['has_results'][site_id][query_id] = api.has_results()
                     vprint(1, "Estimating remaining batch size.")
                     status['batches'][site_id][query_id] = api.estimate_batches_left()
