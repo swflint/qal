@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--library', '-l', metavar = 'DIGITAL_LIBRARY',
                         help = "select which digital library is used",
                         type = str,
-                        choices = ['springer', 'ieee-xplore', 'science-direct'],
+                        choices = apis.keys(),
                         dest = 'library',
                         required = True)
     
@@ -66,47 +66,17 @@ def main():
     args = parser.parse_args()
 
     key = None
-    if args.library == 'springer':
-        if args.api_key or os.environ.get('SPRINGER_LINK_API_KEY'):
-            if args.api_key:
-                key = args.api_key
-            else:
-                key = os.environ.get('SPRINGER_LINK_API_KEY')
-        else:
-            print("An API key must be provided as either an argument or in the SPRINGER_LINK_API_KEY variable.", file = sys.stderr)
-            sys.exit(1)
-    elif args.library == 'ieee-xplore':
-        if args.api_key or os.environ.get('IEEE_XPLORE_API_KEY'):
-            if args.api_key:
-                key = args.api_key
-            else:
-                key = os.environ.get('IEEE_XPLORE_API_KEY')
-        else:
-            print("An API key must be provided as either an argument or in the IEEE_XPLORE_API_KEY variable.", file = sys.stderr)
-            sys.exit(1)
-    elif args.library == 'science-direct':
-        if args.api_key or os.environ.get('SCIENCE_DIRECT_API_KEY'):
-            if args.api_key:
-                key = args.api_key
-            else:
-                key = os.environ.get('SCIENCE_DIRECT_API_KEY')
-        else:
-            print("An API key must be provided as either an argument or in the SCIENCE_DIRECT_API_KEY variable.", file = sys.stderr)
-            sys.exit(1)
+    if args.api_key:
+        key = args.api_key
+    elif os.environ.get('LIBRARY_API_KEY'):
+        key = os.environ.get('LIBRARY_API_KEY')
+    else:
+        print("An API key must be provided as an argument or in the LIBRARY_API_KEY environment variable.", file = sys.stderr)
+        sys.exit(1)
 
-    api = None
-    if args.library == 'springer':
-        api = SpringerLink(api_key = key,
-                           max_results = args.page_size,
-                           start_result = args.start)
-    elif args.library == 'ieee-xplore':
-        api = IEEEXplore(api_key = key,
-                         max_results = args.page_size,
-                         start_result = args.start)
-    elif args.library == 'science-direct':
-        api = ScienceDirect(api_key = key,
-                            max_results = args.page_size,
-                            start_result = args.start)
+    api = make_api(args.library, key)
+    api.start = args.start
+    api.page_size = args.page_size
 
     if args.options:
         for option in args.options:
