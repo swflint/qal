@@ -32,19 +32,11 @@ def vprint(level, message, stream_like = sys.stderr):
 
 def make_api_object(site):
     name = site['name']
-    if name == 'springer':
-        api = SpringerLink(api_key = site['key'])
-    elif name == 'ieee-xplore':
-        api = IEEEXplore(api_key = site['key'])
-    elif name == 'science-direct':
-        api = ScienceDirect(api_key = site['key'])
-    
+    api = make_api(name, site['key'])
     if 'start' in site.keys():
         api.start = site['start']
-
     if 'page_size' in site.keys():
         api.page_size = site['page_size']
-
     if 'options' in site.keys():
         api.set_non_query_parameters(site['options'])
     return api
