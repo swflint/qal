@@ -28,19 +28,16 @@ class SpringerNature(DigitalLibrary):
     def __init__(self, api_key, max_results = 50, start_result = 1):
         super().__init__(name = 'springer_nature',
                          request_type = 'GET',
-                         api_key_name = 'api_key',
                          api_key = api_key,
-                         query_url = "http://api.springernature.com/meta/v2/json",
-                         start_name = 's',
-                         num_results_name = 'p',
-                         default_num_results = max_results,
-                         default_start = start_result,
+                         api_endpoint = "http://api.springernature.com/meta/v2/json",
+                         page_size = max_results,
+                         start = start_result,
                          query_option_information = { 'query_text': 'q' })
 
     def construct_parameters(self):
         params = { 's': self.start,
-                   'p': self.num_results,
-                   'api_key': self.api_key}
+                   'p': self.page_size,
+                   'api_key': self.api_key }
         params.update(self.query_data)
         return params
 

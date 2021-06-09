@@ -26,13 +26,10 @@ class IEEEXplore(DigitalLibrary):
     def __init__(self, api_key, max_results = 50, start_result = 1):
         super().__init__(name = 'ieee_explore',
                          request_type = 'GET',
-                         api_key_name = 'apikey',
                          api_key = api_key,
-                         query_url = 'http://ieeexploreapi.ieee.org/api/v1/search/articles',
-                         start_name = 'start_record',
-                         num_results_name = 'max_results',
-                         default_num_results = max_results,
-                         default_start = start_result,
+                         api_endpoint = 'http://ieeexploreapi.ieee.org/api/v1/search/articles',
+                         page_size = max_results,
+                         start = start_result,
                          query_option_information = { 'query_text': 'querytext',
                                                       'abstract': 'abstract',
                                                       'affiliation': 'affiliation',
@@ -52,12 +49,11 @@ class IEEEXplore(DigitalLibrary):
                                                       'meta_data': 'meta_data',
                                                       'publication_title': 'publication_title',
                                                       'publication_year': 'publication_year',
-                                                      'thesaurus_terms': 'thesaurus_terms' },
-                         non_query_parameters = { 'format': 'json' })
+                                                      'thesaurus_terms': 'thesaurus_terms' })
 
     def construct_parameters(self):
         params = { 'start_record': self.start,
-                   'max_results': self.num_results,
+                   'max_results': self.page_size,
                    'format': 'json',
                    'apikey': self.api_key }
         params.update(self.query_data)

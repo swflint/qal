@@ -13,15 +13,11 @@ class ScienceDirect(DigitalLibrary):
     def __init__(self, api_key, max_results = 25, start_result = 1):
         super().__init__(name = "science_direct",
                          request_type = "PUT",
-                         api_key_name = 'apiKey',
                          api_key = api_key,
-                         query_url = "https://api.elsevier.com/content/search/sciencedirect",
-                         start_name = 'start',
-                         num_results_name = 'count',
-                         default_num_results = max_results,
-                         default_start = start_result,
-                         query_option_information = { 'query_text': 'qs' },
-                         non_query_parameters = { 'httpAccept': 'application/json' })
+                         api_endpoint = "https://api.elsevier.com/content/search/sciencedirect",
+                         page_size = max_results,
+                         start = start_result,
+                         query_option_information = { 'query_text': 'qs' })
 
     def process_results(self, data):
         if 'error-response' in data.keys():
@@ -60,6 +56,6 @@ class ScienceDirect(DigitalLibrary):
 
     def construct_body(self):
         body_data = { 'offset': self.start,
-                      'show': self.num_results }
+                      'show': self.page_size }
         body_data.update(self.query_data)
         return json.dumps(body_data)
