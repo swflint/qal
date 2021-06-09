@@ -73,12 +73,15 @@ class DigitalLibrary(metaclass=ABCMeta):
             self.set_query_option(key, query_options[key])
 
     def construct_headers(self):
+        """Construct a dictionary of headers for the request.  Override if necessary."""
         return { }
 
     def construct_parameters(self):
+        """Construct a dictionary of URL parameters for the request.  Override if necessary."""
         return { }
 
     def construct_body(self):
+        """Construct a request body (a serializable or string).  Override if necessary."""
         return None
 
     @backoff.on_exception(backoff.expo,
