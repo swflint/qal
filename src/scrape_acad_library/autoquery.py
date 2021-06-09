@@ -38,7 +38,7 @@ def make_api_object(site):
     if 'page_size' in site.keys():
         api.page_size = site['page_size']
     if 'options' in site.keys():
-        api.set_non_query_parameters(site['options'])
+        api.set_options(site['options'])
     return api
 
 def write_status(status):

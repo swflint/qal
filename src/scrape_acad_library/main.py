@@ -35,7 +35,7 @@ def main():
                         action = 'append')
 
     parser.add_argument('--query', '-q', metavar = "KEY=VALUE",
-                        help = "set query parameter KEY to VALUE",
+                        help = "set API option KEY to VALUE",
                         type = str,
                         dest = 'query',
                         action = 'append')
@@ -81,7 +81,7 @@ def main():
     if args.options:
         for option in args.options:
             (key, value) = option.split('=', 1)
-            api.set_non_query_parameter(key, value)
+            api.set_option(key, value)
 
     for query_item in args.query:
         (key, value) = query_item.split('=', 1)

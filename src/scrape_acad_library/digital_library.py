@@ -46,17 +46,17 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.query_option_information = query_option_information
         
         self.results_total = -1
-        self.non_query_parameters = {}
+        self.options = {}
         self.query_data = {}
         self.error = False
 
-    def set_non_query_parameter(self, name, value):
+    def set_option(self, name, value):
         """Set a non-query parameter NAME to VALUE."""
-        self.non_query_parameters[name] = value
+        self.options[name] = value
 
-    def set_non_query_parameters(self, non_query_parameters):
-        for key in non_query_parameters.keys():
-            self.non_query_parameters[key] = non_query_parameters[key]
+    def set_options(self, options):
+        """Given a dictionary of options, automatically update the API options dictionary."""
+        self.options.update(options)
         
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
