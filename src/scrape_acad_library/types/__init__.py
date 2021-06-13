@@ -17,6 +17,13 @@ class Publication(metaclass=ABCMeta):
         else:
             self.search_terms[source] = [search_terms]
 
+    def asdict(self):
+        return { 'identifier': self.identifier,
+                 'title': self.title,
+                 'authors': self.authors,
+                 'year' : self.year,
+                 'search_terms': self.search_terms }
+
     @abstractmethod
     def venue(self):
         raise NotImplementedError("Must define venue getter.")
@@ -33,6 +40,15 @@ class Article(Publication):
     def venue(self):
         return self.journal
 
+    def asdict(self):
+        d = super().asdict()
+        d['journal'] = self.journal
+        d['volume'] = self.volume
+        d['issue'] = self.issue
+        d['abstract'] = self.abstract
+        d['pages'] = self.pages
+        return d
+
 class Conference(Publication):
     def __init__(self, identifier, title, authors, year, book_title, conference, abstract = None, pages = None):
         super().__init__(identifier, title, authors, year)
@@ -47,6 +63,14 @@ class Conference(Publication):
         else:
             return self.book_title
 
+    def asdict(self):
+        d = super().asdict()
+        d['book_title'] = self.book_title
+        d['conference'] = self.conference
+        d['abstract'] = self.abstract
+        d['pages'] = self.pages
+        return d
+
 class Book(Publication):
     def __init__(self, identifier, title, authors, year, abstract = None):
         super().__init__(identifier, title, authors, year)
@@ -54,6 +78,10 @@ class Book(Publication):
 
     def venue(self):
         return self.title
+
+    def asdict(self):
+        d = super().asdict()
+        d['abstract'] = self.abstract
         
 class BookChapter(Publication):
     def __init__(self, identifier, title, authors, year, book_title, abstract = None, pages = None):
@@ -64,3 +92,10 @@ class BookChapter(Publication):
 
     def venue(self):
         return self.book_title
+
+    def asdict(self):
+        d = super().asdict()
+        d['book_title'] = self.book_title
+        d['abstract'] = self.abstract
+        d['pages'] = self.pages
+        return d
