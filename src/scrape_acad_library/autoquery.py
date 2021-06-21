@@ -1,6 +1,28 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# This file is a part of `scrape_acad_library`.
+#
+# Copyright (c) 2021, University of Nebraska Board of Regents.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import sys
 
@@ -21,7 +43,8 @@ import jsonpickle
 VERBOSE = 0
 STATUS_FILE = ''
 
-def vprint(level, message, stream_like = sys.stderr):
+
+def vprint(level, message, stream_like=sys.stderr):
     if level <= VERBOSE:
         if type(stream_like) is tqdm:
             stream_like.display(message)
@@ -29,6 +52,7 @@ def vprint(level, message, stream_like = sys.stderr):
             stream_like.write(message)
             if stream_like is sys.stderr:
                 stream_like.write("\n")
+
 
 def make_api_object(site):
     name = site['name']
@@ -41,14 +65,16 @@ def make_api_object(site):
         api.set_options(site['options'])
     return api
 
+
 def write_status(status):
     vprint(2, "Saving status file.")
     vprint(3, "Retaining backup copy of status file.")
     if osp.exists(STATUS_FILE):
         os.replace(STATUS_FILE, f"{STATUS_FILE}.bak")
     with open(STATUS_FILE, 'w') as fd:
-        json.dump(status, fd, indent = True)
+        json.dump(status, fd, indent=True)
     vprint(2, "Saved status file.")
+
 
 def restore_query_status(status, api, site_id, query_id):
     status_item = status['statuses'][site_id][query_id]
@@ -57,37 +83,40 @@ def restore_query_status(status, api, site_id, query_id):
         api.page_size = status_item['page_size']
         api.results_total = status_item['total']
 
+
 def max_runs(batches):
     max(map(max, batches))
-        
+
+
 def main():
-    parser = ArgumentParser(description = "Automatically query several academic libraries as defined by a control file.")
+    parser = ArgumentParser(
+        description="Automatically query several academic libraries as defined by a control file.")
 
     parser.add_argument('--verbose', '-v',
-                        help = "provide verbose logging",
-                        default = 0,
-                        action = 'count',
-                        dest = 'verbose')
+                        help="provide verbose logging",
+                        default=0,
+                        action='count',
+                        dest='verbose')
 
-    parser.add_argument('--plan-file', '-p', metavar = "PLAN",
-                        type = str,
-                        required = True,
-                        dest = 'plan_file')
+    parser.add_argument('--plan-file', '-p', metavar="PLAN",
+                        type=str,
+                        required=True,
+                        dest='plan_file')
 
-    parser.add_argument('--status-file', '-s', metavar = "STATUS",
-                        type = str,
-                        required = True,
-                        dest = 'status_file')
+    parser.add_argument('--status-file', '-s', metavar="STATUS",
+                        type=str,
+                        required=True,
+                        dest='status_file')
 
-    parser.add_argument('--output-file', '-o', metavar = "OUT",
-                        type = str,
-                        required = True,
-                        dest = 'out_file')
+    parser.add_argument('--output-file', '-o', metavar="OUT",
+                        type=str,
+                        required=True,
+                        dest='out_file')
 
-    parser.add_argument('--number-batches', '-b', metavar = "N",
-                        type = int,
-                        dest = 'batches',
-                        default = -1)
+    parser.add_argument('--number-batches', '-b', metavar="N",
+                        type=int,
+                        dest='batches',
+                        default=-1)
 
     args = parser.parse_args()
 
@@ -101,7 +130,6 @@ def main():
     with open(args.plan_file, 'r') as fd:
         plan = json.load(fd)
 
-
     status = {}
     if osp.exists(args.status_file):
         vprint(2, "Restoring status.")
@@ -109,7 +137,7 @@ def main():
             status = json.load(fd)
         vprint(1, "Restored status.")
 
-    results = ResultsStore(args.out_file, saviness = 1)
+    results = ResultsStore(args.out_file, saviness=1)
 
     num_sites = len(plan['sites'])
     num_queries = len(plan['queries'])
@@ -133,14 +161,16 @@ def main():
             status['has_results'].append(has_results)
             status['batches'].append(batches)
     vprint(1, "Seeded status structure.")
-            
+
     write_status(status)
 
     def batch_across():
-        sites_tqdm = tqdm(enumerate(plan['sites']), desc = "Sites", total = num_sites, position = 1)
+        sites_tqdm = tqdm(
+            enumerate(plan['sites']), desc="Sites", total=num_sites, position=1)
         for site_id, site in sites_tqdm:
             vprint(2, f"Starting for site {site['name']}.")
-            query_tqdm = tqdm(enumerate(plan['queries']), desc = "Query", total = num_queries, position = 2)
+            query_tqdm = tqdm(
+                enumerate(plan['queries']), desc="Query", total=num_queries, position=2)
             if not site['enabled']:
                 continue
             for query_id, query in query_tqdm:
@@ -152,9 +182,11 @@ def main():
                     api.set_query_options(query)
                     vprint(4, "Restoring query status.")
                     restore_query_status(status, api, site_id, query_id)
-                    results_tqdm = tqdm(api.batch(), desc = f"Results ({site['name']})", total = api.page_size, position = 3)
+                    results_tqdm = tqdm(
+                        api.batch(), desc=f"Results ({site['name']})", total=api.page_size, position=3)
                     for result in results_tqdm:
-                        vprint(1, f"Processing {result.identifier}.", results_tqdm)
+                        vprint(
+                            1, f"Processing {result.identifier}.", results_tqdm)
                         results.add_item(result, site['name'], query)
                     vprint(1, "Updating status matrix.")
                     status['statuses'][site_id][query_id]['total'] = api.results_total
@@ -167,14 +199,14 @@ def main():
                     if not status['has_results'][site_id][query_id]:
                         status['incomplete'] -= 1
                     write_status(status)
-    
+
     if args.batches > 0:
-        for k in trange(args.batches, desc = "Batch", position = 0):
+        for k in trange(args.batches, desc="Batch", position=0):
             vprint(1, f"Starting Batch {k + 1}.")
             batch_across()
             vprint(1, f"Completed Batch {k + 1}.")
     else:
-        with tqdm(total = status['max_batches'], desc = "Batch", position = 0) as progress:
+        with tqdm(total=status['max_batches'], desc="Batch", position=0) as progress:
             k = 0
             while status['incomplete'] > 0:
                 vprint(1, f"Starting Batch {k + 1}.")

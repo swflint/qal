@@ -1,6 +1,28 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# This file is a part of `scrape_acad_library`.
+#
+# Copyright (c) 2021, University of Nebraska Board of Regents.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import requests
 import backoff
 import traceback
@@ -13,9 +35,10 @@ from abc import ABCMeta, abstractmethod
 
 from io import StringIO
 
+
 class DigitalLibrary(metaclass=ABCMeta):
     """A representation of a queryable Digital Library.
-    
+
     By default, this can handle making a request, provided a query is
     given.
     """
@@ -27,10 +50,10 @@ class DigitalLibrary(metaclass=ABCMeta):
                  api_key,
                  api_endpoint,
                  query_option_information,
-                 page_size = 10,
-                 start = 1):
+                 page_size=10,
+                 start=1):
         """Initialize a Digital Library.
-        
+
         Parameters:
         name (string): The name of the Digital library
         request_type (string): The HTTP request type used by the Digital Library
@@ -48,7 +71,7 @@ class DigitalLibrary(metaclass=ABCMeta):
         self.page_size = page_size
         self.start = start
         self.query_option_information = query_option_information
-        
+
         self.results_total = -1
         self.options = {}
         self.query_data = {}
@@ -62,7 +85,8 @@ class DigitalLibrary(metaclass=ABCMeta):
         with StringIO() as fd:
             fd.write("Known Query Options:\n")
             for key in self.query_option_information.keys():
-                fd.write(f" - {key} - {self.query_option_information[key][1]}\n")
+                fd.write(
+                    f" - {key} - {self.query_option_information[key][1]}\n")
             description_output = fd.getvalue()
         return description_output
 
@@ -82,8 +106,9 @@ class DigitalLibrary(metaclass=ABCMeta):
         translation, this is used.  Override as needed.
 
         """
-        raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
-        
+        raise UnknownQueryParameter(
+            name, message=f"Digital Library {self.name} does not support query option {name}.")
+
     def set_query_option(self, name, value):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
         option_information = self.query_option_information.get(name)
@@ -92,7 +117,8 @@ class DigitalLibrary(metaclass=ABCMeta):
         elif option_information and (not option_information[0]):
             self.set_query_option_non_key(name, value)
         else:
-            raise UnknownQueryParameter(name, message = f"Digital Library {self.name} does not support query option {name}.")
+            raise UnknownQueryParameter(
+                name, message=f"Digital Library {self.name} does not support query option {name}.")
 
     def set_query_options(self, query_options):
         for key in query_options.keys():
@@ -100,11 +126,11 @@ class DigitalLibrary(metaclass=ABCMeta):
 
     def construct_headers(self):
         """Construct a dictionary of headers for the request.  Override if necessary."""
-        return { }
+        return {}
 
     def construct_parameters(self):
         """Construct a dictionary of URL parameters for the request.  Override if necessary."""
-        return { }
+        return {}
 
     def construct_body(self):
         """Construct a request body (a serializable or string).  Override if necessary."""
@@ -112,17 +138,17 @@ class DigitalLibrary(metaclass=ABCMeta):
 
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException,
-                          max_tries = 10)
+                          max_tries=10)
     def make_request(self):
         """Make a request."""
         headers = self.construct_headers()
         params = self.construct_parameters()
         body = self.construct_body()
-        response = requests.request(method = self.request_type,
-                                    url = self.api_endpoint,
-                                    params = params,
-                                    headers = headers,
-                                    data = body)
+        response = requests.request(method=self.request_type,
+                                    url=self.api_endpoint,
+                                    params=params,
+                                    headers=headers,
+                                    data=body)
         return response.json()
 
     @abstractmethod
@@ -166,7 +192,7 @@ class DigitalLibrary(metaclass=ABCMeta):
     def estimate_batches_left(self):
         """Estimate the number of batches that are left."""
         return self.estimate_batches() - ceil(self.start / self.page_size)
-        
+
     def run(self):
         """Run a query, as long as possible."""
         try:
