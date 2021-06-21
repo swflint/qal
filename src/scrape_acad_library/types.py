@@ -3,6 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 
+
 class Publication(metaclass=ABCMeta):
     def __init__(self, identifier, title, authors, year):
         self.search_terms = {}
@@ -18,18 +19,19 @@ class Publication(metaclass=ABCMeta):
             self.search_terms[source] = [search_terms]
 
     def asdict(self):
-        return { 'identifier': self.identifier,
-                 'title': self.title,
-                 'authors': self.authors,
-                 'year' : self.year,
-                 'search_terms': self.search_terms }
+        return {'identifier': self.identifier,
+                'title': self.title,
+                'authors': self.authors,
+                'year': self.year,
+                'search_terms': self.search_terms}
 
     @abstractmethod
     def venue(self):
         raise NotImplementedError("Must define venue getter.")
-            
+
+
 class Article(Publication):
-    def __init__(self, identifier, title, authors, year, journal, volume, issue, abstract = None, pages = None):
+    def __init__(self, identifier, title, authors, year, journal, volume, issue, abstract=None, pages=None):
         super().__init__(identifier, title, authors, year)
         self.journal = journal
         self.volume = volume
@@ -49,8 +51,9 @@ class Article(Publication):
         d['pages'] = self.pages
         return d
 
+
 class Conference(Publication):
-    def __init__(self, identifier, title, authors, year, book_title, conference, abstract = None, pages = None):
+    def __init__(self, identifier, title, authors, year, book_title, conference, abstract=None, pages=None):
         super().__init__(identifier, title, authors, year)
         self.book_title = book_title
         self.conference = conference
@@ -71,8 +74,9 @@ class Conference(Publication):
         d['pages'] = self.pages
         return d
 
+
 class Book(Publication):
-    def __init__(self, identifier, title, authors, year, abstract = None):
+    def __init__(self, identifier, title, authors, year, abstract=None):
         super().__init__(identifier, title, authors, year)
         self.abstract = abstract
 
@@ -82,9 +86,10 @@ class Book(Publication):
     def asdict(self):
         d = super().asdict()
         d['abstract'] = self.abstract
-        
+
+
 class BookChapter(Publication):
-    def __init__(self, identifier, title, authors, year, book_title, abstract = None, pages = None):
+    def __init__(self, identifier, title, authors, year, book_title, abstract=None, pages=None):
         super().__init__(identifier, title, authors, year)
         self.book_title = book_title
         self.abstract = abstract
