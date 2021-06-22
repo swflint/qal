@@ -26,12 +26,19 @@
 
 from setuptools import setup, find_packages
 
-setup(name="qal",
+with open("README.md", "r", encoding = "utf-8") as fh:
+    long_description = fh.read()
+
+setup(name="qal-swflint",
       version="1.0.0",
       description="A tool for systematically querying various academic publishing databases.",
+      long_description = long_description,
+      long_description_content_type="text/markdown",
       author="Samuel W. Flint",
       author_email="swflint@flintfam.org",
       license="MIT",
+      url="https://github.com/swflint/qal",
+      download_url='https://github.com/swflint/qal/archive/v1.0.0.tar.gz',
       packages=find_packages(where="src"),
       package_dir={"": "src"},
       scripts=['bin/qal-query',
@@ -42,4 +49,13 @@ setup(name="qal",
           "urllib3",
           "jsonpickle",
           "tqdm"
+      ],
+      keywords=['LITERATURE REVIEW', 'ACADEMIC', 'BIBLIOGRAPHY'],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9'
       ])
