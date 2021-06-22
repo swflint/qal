@@ -1,4 +1,4 @@
-# Scrape Academic Library
+# Query Academic Library
 
 This application is built to support automatically searching a number of academic digital libraries.  In particular, it currently supports the following:
 
@@ -6,15 +6,34 @@ This application is built to support automatically searching a number of academi
  - [SpringerLink](https://link.springer.com)
  - [ScienceDirect](https://sciencedirect.com)
 
-Other digital libraries and document repositories are in the works (including Wiley Online).
-
 ## Tools
 
-### `query-acad-library`
+### `qal-query`
 
-This tool can be used to try queries out on different digital libraries, as well as discover information about the capabilities and query options of each individual library.
+This tool can be used to try queries out on different digital libraries, as well as discover information about the capabilities and query options of each individual library.  Options of note include:
 
-### `auto-query`
+ - `-L` or `--list-libraries`: This option will list all libraries known to the system and their abbreviations.
+ - `-d` or `--describe`: When coupled with `-l`, describe a library, showing the query option names available and their descriptions.
+ - `-l` or `--library`: Select a library to query or describe.
+ - `-r` or `--results`: Select where to store results.
+ - `-q` or `--query`: Multiple allowed, should be of the form `query-option-name=value`.
+
+### `qal-auto`
+
+This tool is used to automatically run several queries against supported digital libraries.  There are several options, including:
+
+ - `-p` or `--plan-file`: The location of the plan file.  Format described below.
+ - `-s` or `--status-file`: Where to store query status (allows for picking back up if interrupted).
+ - `-o` or `--output-file`: Where to store the results data.
+ - `-b` or `--number-batches`: How many batches to run (how many times through one page of each query/provider pair).
+ - `-v` or `--verbose`: Can show multiple times, more times is more verbose.
+
+#### Plan Files
+
+The plan file is a JSON-formatted dictionary, with at least the two following keys.
+
+ - `sites`: an array of dictionaries.  Each dictionary contains minimum a `name`, and should contain a `key`, and can also contain `start` and `page_size` keys (integer values), and an optional `options` key with a dictionary of options.  See documentation for particular APIs.
+ - `queries`: an array of dictionaries.  These dictionaries map query options (symbolic names, see `qal-query --describe -l library` for options) to string values.
 
 ## Obtaining API Keys
 
