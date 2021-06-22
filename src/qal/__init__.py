@@ -23,24 +23,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 from .springer import SpringerNature
 from .science_direct import ScienceDirect
 from .ieeexplore import IEEEXplore
-__version__ = "0.5.0"
+__version__ = "1.0.0"
 
 apis = {}
 
 env_var_names = {}
 
+LOGGER = logging.getLogger('qal')
 
 def register_api(names, env_var, api):
     global apis
     global env_var_names
+    LOGGER.info("Registering API: %s", api)
     for name in names:
         apis[name] = api
         env_var_names[name] = env_var
-
 
 def get_env_var(name, key_maybe):
     global env_var_names

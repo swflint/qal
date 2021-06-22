@@ -25,6 +25,7 @@
 
 import os
 import sys
+import logging
 
 import os.path as osp
 
@@ -35,6 +36,8 @@ from .exceptions import *
 from .results_store import ResultsStore
 
 import jsonpickle
+
+LOGGER = logging.getLogger('qal.main')
 
 
 def main():
@@ -98,7 +101,15 @@ def main():
                         dest='batches',
                         default=-1)
 
+    parser.add_argument('--verbose', '-v',
+                        help="provide verbose logging",
+                        default=0,
+                        action='count',
+                        dest='verbose')
+
     args = parser.parse_args()
+
+    logging.getLogger('qal').setLevel((6 - args.verbose)*10)
 
     if args.list_libraries:
         print("Known Libraries:")
@@ -139,10 +150,6 @@ def main():
         api.set_query_option(key, value)
 
     results_store = ResultsStore(args.output, saviness=1)
-    # results_data = {}
-    # if args.output and osp.exists(args.output):
-    #     with open(args.output, 'r') as fd:
-    #         results_data = jsonpickle.decode(fd.read())
 
     def do_batch():
         for result in api.batch():

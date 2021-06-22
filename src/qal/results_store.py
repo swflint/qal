@@ -26,7 +26,9 @@
 import jsonpickle
 import os.path as osp
 import os
+import logging
 
+LOGGER = logging.getLogger('qal.results_store')
 
 class ResultsStore:
     def __init__(self, file_name, saviness=0):
@@ -41,9 +43,12 @@ class ResultsStore:
 
     def save(self):
         if osp.exists(self.filename):
+            LOGGER.info("Backing up results store to %s.bak.", self.filename)
             os.replace(self.filename, f"{self.filename}.bak")
         with open(self.filename, 'w') as fd:
+            LOGGER.debug("Saving results store.")
             fd.write(jsonpickle.encode(self.data))
+            LOGGER.debug("Results store saved.")
 
     def add_item(self, item, source=None, query=None):
         if item.identifier in self.data.keys():

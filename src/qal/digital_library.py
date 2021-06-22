@@ -26,6 +26,7 @@
 import requests
 import backoff
 import traceback
+import logging
 
 from math import ceil
 
@@ -35,6 +36,10 @@ from abc import ABCMeta, abstractmethod
 
 from io import StringIO
 
+LOGGER = logging.getLogger('qal.DigitalLibrary')
+
+def backoff_logger(details):
+    LOGGER.warning("Backing off {wait:0.1f} seconds after {tries} tries.".format(**details))
 
 class DigitalLibrary(metaclass=ABCMeta):
     """A representation of a queryable Digital Library.
@@ -113,10 +118,13 @@ class DigitalLibrary(metaclass=ABCMeta):
         """Set a query option NAME to VALUE.  Note, NAME should be a symbolic name, and will error if not available."""
         option_information = self.query_option_information.get(name)
         if option_information and option_information[0]:
+            LOGGER.debug("Option %s is a dictionary entry.", name)
             self.query_data[option_information[2]] = value
         elif option_information and (not option_information[0]):
+            LOGGER.debug("Option %s is set through delegation.")
             self.set_query_option_non_key(name, value)
         else:
+            LOGGER.warning("Option %s is unknown.")
             raise UnknownQueryParameter(
                 name, message=f"Digital Library {self.name} does not support query option {name}.")
 
@@ -138,7 +146,8 @@ class DigitalLibrary(metaclass=ABCMeta):
 
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException,
-                          max_tries=10)
+                          max_tries=10,
+                          on_backoff=backoff_logger)
     def make_request(self):
         """Make a request."""
         headers = self.construct_headers()

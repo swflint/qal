@@ -27,8 +27,11 @@ from .digital_library import DigitalLibrary
 from .types import Article
 
 import json
+import logging
 
 from time import sleep
+
+LOGGER = logging.getLogger('qal.scienc_direct')
 
 
 class ScienceDirect(DigitalLibrary):
@@ -51,13 +54,14 @@ class ScienceDirect(DigitalLibrary):
     def process_results(self, data):
         if 'error-response' in data.keys():
             if data['error-response']['error_code'] == 'RATE_LIMIT_EXCEEDED':
-                print("Rate Limit Exceeded: Pausing.")
+                LOGGER.error("Rate limit has been exceeded, pausing.")
                 sleep(60)
                 return []
             else:
-                print(f"An error has occured: {data['error-response']}")
+                LOGGER.critical("An unknown error has occured: %s.", data['error-response'])
                 self.error = True
                 return []
+        LOGGER.debug("There are %s results for the query, %d in the batch.", data['resultsFound'], len(data['results']))
         self.results_total = int(data['resultsFound'])
         self.start += len(data['results'])
         results = []
@@ -80,10 +84,12 @@ class ScienceDirect(DigitalLibrary):
         return results
 
     def construct_headers(self):
+        LOGGER.debug("Constructing headers.")
         return {'Accept': 'application/json',
                 'X-ELS-APIKey': self.api_key}
 
     def construct_body(self):
+        LOGGER.debug("Constructing request body.")
         body_data = {'offset': self.start,
                      'show': self.page_size}
         body_data.update(self.query_data)

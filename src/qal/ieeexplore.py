@@ -27,7 +27,9 @@ from .digital_library import DigitalLibrary
 from .types import Conference, Article
 
 import re
+import logging
 
+LOGGER = logging.getLogger('qal.ieeexplore')
 
 def sanitize_venue(string):
     # string = re.sub(r"(ACM/)?IEEE(/ACM)?", "", string)
@@ -69,6 +71,7 @@ class IEEEXplore(DigitalLibrary):
                                                    'year': (True, 'Match publication year.', 'publication_year')})
 
     def construct_parameters(self):
+        LOGGER.debug("Constructing URL parameters.")
         params = {'start_record': self.start,
                   'max_results': self.page_size,
                   'format': 'json',
@@ -77,6 +80,7 @@ class IEEEXplore(DigitalLibrary):
         return params
 
     def process_results(self, data):
+        LOGGER.debug("There are %d results for the query, %d in the batch.", data['total_records'], len(data['articles']))
         self.results_total = data['total_records']
         self.start += len(data['articles'])
         results = []

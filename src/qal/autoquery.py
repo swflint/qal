@@ -25,9 +25,9 @@
 
 import os
 import sys
+import logging
 
 import os.path as osp
-import os
 
 from argparse import ArgumentParser
 
@@ -43,16 +43,7 @@ import jsonpickle
 VERBOSE = 0
 STATUS_FILE = ''
 
-
-def vprint(level, message, stream_like=sys.stderr):
-    if level <= VERBOSE:
-        if type(stream_like) is tqdm:
-            stream_like.display(message)
-        else:
-            stream_like.write(message)
-            if stream_like is sys.stderr:
-                stream_like.write("\n")
-
+LOGGER = logging.getLogger('qal.autoquery')
 
 def make_api_object(site):
     name = site['name']
@@ -67,13 +58,13 @@ def make_api_object(site):
 
 
 def write_status(status):
-    vprint(2, "Saving status file.")
-    vprint(3, "Retaining backup copy of status file.")
+    LOGGER.info("Saving status file %s.", STATUS_FILE)
     if osp.exists(STATUS_FILE):
+        LOGGER.debug("Retaining backup copy of status file")
         os.replace(STATUS_FILE, f"{STATUS_FILE}.bak")
     with open(STATUS_FILE, 'w') as fd:
         json.dump(status, fd, indent=True)
-    vprint(2, "Saved status file.")
+    LOGGER.debug("Saved status file.")
 
 
 def restore_query_status(status, api, site_id, query_id):
@@ -120,30 +111,30 @@ def main():
 
     args = parser.parse_args()
 
-    global VERBOSE
+    logging.getLogger('qal').setLevel((6 - args.verbose)*10)
+    
     global STATUS_FILE
-    VERBOSE = args.verbose
     STATUS_FILE = args.status_file
 
     plan = {}
-    vprint(2, "Loading plan")
+    LOGGER.info("Loading plan file %s.", args.plan_file)
     with open(args.plan_file, 'r') as fd:
         plan = json.load(fd)
 
     status = {}
     if osp.exists(args.status_file):
-        vprint(2, "Restoring status.")
+        LOGGER.info("Restoring status.")
         with open(args.status_file, 'r') as fd:
             status = json.load(fd)
-        vprint(1, "Restored status.")
+        LOGGER.debug("Restored status.")
 
     results = ResultsStore(args.out_file, saviness=1)
 
     num_sites = len(plan['sites'])
     num_queries = len(plan['queries'])
 
-    vprint(2, "Seeding status structure.")
     if len(status.keys()) == 0:
+        LOGGER.info("Seeding status structure.")
         status['statuses'] = []
         status['has_results'] = []
         status['incomplete'] = num_sites * num_queries
@@ -160,7 +151,7 @@ def main():
             status['statuses'].append(row)
             status['has_results'].append(has_results)
             status['batches'].append(batches)
-    vprint(1, "Seeded status structure.")
+        LOGGER.debug("Seeded status structure.")
 
     write_status(status)
 
@@ -168,32 +159,31 @@ def main():
         sites_tqdm = tqdm(
             enumerate(plan['sites']), desc="Sites", total=num_sites, position=1)
         for site_id, site in sites_tqdm:
-            vprint(2, f"Starting for site {site['name']}.")
+            LOGGER.info(f"Starting for site {site['name']}.")
             query_tqdm = tqdm(
-                enumerate(plan['queries']), desc="Query", total=num_queries, position=2)
+                enumerate(plan['queries']), desc="Query", total=num_queries, position)=2
             if not site['enabled']:
                 continue
             for query_id, query in query_tqdm:
-                vprint(2, f"Starting for query number {query_id}")
+                LOGGER.info(f"Starting for query number {query_id}")
                 if status['has_results'][site_id][query_id]:
-                    vprint(4, f"Building API object.")
+                    LOGGER.debug(f"Building API object.")
                     api = make_api_object(site)
-                    vprint(4, "Setting query parameters.")
+                    LOGGER.debug("Setting query parameters.")
                     api.set_query_options(query)
-                    vprint(4, "Restoring query status.")
+                    LOGGER.debug("Restoring query status.")
                     restore_query_status(status, api, site_id, query_id)
                     results_tqdm = tqdm(
                         api.batch(), desc=f"Results ({site['name']})", total=api.page_size, position=3)
                     for result in results_tqdm:
-                        vprint(
-                            1, f"Processing {result.identifier}.", results_tqdm)
+                        LOGGER.info(f"Processing {result.identifier}.")
                         results.add_item(result, site['name'], query)
-                    vprint(1, "Updating status matrix.")
+                    LOGGER.debug("Updating status matrix.")
                     status['statuses'][site_id][query_id]['total'] = api.results_total
                     status['statuses'][site_id][query_id]['start'] = api.start
                     status['statuses'][site_id][query_id]['page_size'] = api.page_size
                     status['has_results'][site_id][query_id] = api.has_results()
-                    vprint(1, "Estimating remaining batch size.")
+                    LOGGER.debug("Estimating remaining batch size.")
                     status['batches'][site_id][query_id] = api.estimate_batches_left()
                     status['max_batches'] = max_runs(status['batches'])
                     if not status['has_results'][site_id][query_id]:
@@ -202,20 +192,20 @@ def main():
 
     if args.batches > 0:
         for k in trange(args.batches, desc="Batch", position=0):
-            vprint(1, f"Starting Batch {k + 1}.")
+            LOGGER.debug(f"Starting Batch {k + 1}.")
             batch_across()
-            vprint(1, f"Completed Batch {k + 1}.")
+            LOGGER.debug(f"Completed Batch {k + 1}.")
     else:
         with tqdm(total=status['max_batches'], desc="Batch", position=0) as progress:
             k = 0
             while status['incomplete'] > 0:
-                vprint(1, f"Starting Batch {k + 1}.")
+                LOGGER.debug(f"Starting Batch {k + 1}.")
                 batch_across()
-                vprint(1, f"Completed Batch {k + 1}.")
+                LOGGER.debug(f"Completed Batch {k + 1}.")
                 progress.update(1)
-                vprint(2, "Updated progress.")
+                LOGGER.debug("Updated progress.")
                 progress.total = status['max_batches']
-                vprint(2, f"Updated estimated batches.")
+                LOGGER.debug(f"Updated estimated batches.")
                 progress.refresh()
-                vprint(2, f"Refreshed.")
+                LOGGER.debug(f"Refreshed.")
                 k += 1

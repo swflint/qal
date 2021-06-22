@@ -27,6 +27,9 @@ from .digital_library import DigitalLibrary
 from .types import Article, Conference
 
 import re
+import logging
+
+LOGGER = logging.getLogger('qal.springer')
 
 
 def sanitize_venue(string):
@@ -60,6 +63,7 @@ class SpringerNature(DigitalLibrary):
                          query_option_information={'query_text': (True, 'Boolean match expression.', 'q')})
 
     def construct_parameters(self):
+        LOGGER.debug("Constructing URL parameters.")
         params = {'s': self.start,
                   'p': self.page_size,
                   'api_key': self.api_key}
@@ -67,6 +71,7 @@ class SpringerNature(DigitalLibrary):
         return params
 
     def process_results(self, data):
+        LOGGER.debug("There are %s results for the query, %s in the batch.", data['result'][0]['total'], data['result'][0]['recordsDisplayed'])
         self.results_total = int(data['result'][0]['total'])
         self.start += int(data['result'][0]['recordsDisplayed'])
         results = []
