@@ -165,7 +165,7 @@ def main():
         for site_id, site in sites_tqdm:
             LOGGER.info(f"Starting for site {site['name']}.")
             query_tqdm = tqdm(
-                enumerate(plan['queries']), desc="Query", total=num_queries, position)
+                enumerate(plan['queries']), desc="Query", total=num_queries, position=2)
             if not site['enabled']:
                 continue
             for query_id, query in query_tqdm:
