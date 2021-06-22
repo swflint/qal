@@ -115,14 +115,10 @@ def main():
         print(api.describe_options())
         sys.exit(0)
 
-    key = None
-    if args.api_key:
-        key = args.api_key
-    elif os.environ.get('LIBRARY_API_KEY'):
-        key = os.environ.get('LIBRARY_API_KEY')
-    else:
+    key = get_env_var(args.library, args.api_key)
+    if key is None:
         parser.error(
-            "An API key must be provided as an argument or in the LIBRARY_API_KEY environment variable.")
+            f"An API key must be provided as an argument or in the {get_env_var_name(args.library)} or LIBRARY_API_KEY environment variables.")
 
     if not args.output:
         parser.error("A results storage file must be provided.")

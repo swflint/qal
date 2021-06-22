@@ -56,7 +56,7 @@ def vprint(level, message, stream_like=sys.stderr):
 
 def make_api_object(site):
     name = site['name']
-    api = make_api(name, site['key'])
+    api = make_api(name, get_env_var(site['name'], site.get('key')))
     if 'start' in site.keys():
         api.start = site['start']
     if 'page_size' in site.keys():

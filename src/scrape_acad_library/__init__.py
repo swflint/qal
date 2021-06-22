@@ -23,6 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from .springer import SpringerNature
 from .science_direct import ScienceDirect
 from .ieeexplore import IEEEXplore
@@ -30,15 +31,35 @@ __version__ = "0.5.0"
 
 apis = {}
 
+env_var_names = {}
 
-def register_api(names, api):
+
+def register_api(names, env_var, api):
     global apis
+    global env_var_names
     for name in names:
         apis[name] = api
+        env_var_names[name] = env_var
+
+
+def get_env_var(name, key_maybe):
+    global env_var_names
+    if key_maybe:
+        return key_maybe
+    elif env_var_names.get(name):
+        return os.environ.get(env_var_names.get(name))
+    else:
+        return os.environ.get('LIBRARY_API_KEY')
+
+
+def get_env_var_name(name):
+    global env_var_names
+    return env_var_names.get(name)
 
 
 def make_api(name, api_key):
     global apis
+    global env_var_names
     try:
         api = apis[name]
         return api(api_key=api_key)
@@ -51,6 +72,7 @@ register_api(['springer',
               'springer-link',
               'springer_nature',
               'springer-nature'],
+             'SPRINGER_LINK_API_KEY',
              SpringerNature)
 
 register_api(['ieee',
@@ -58,9 +80,11 @@ register_api(['ieee',
               'ieee_xplore',
               'ieee-xplore',
               'xplore'],
+             'IEEE_XPLORE_API_KEY',
              IEEEXplore)
 
 register_api(['science-direct',
               'sciencedirect',
               'elsevier'],
+             'SCIENCE_DIRECT_API_KEY',
              ScienceDirect)
