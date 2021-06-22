@@ -54,3 +54,9 @@ class ResultsStore:
             self.num += 1
             if (self.num % self.saviness) == 0:
                 self.save()
+
+    def get(self, name):
+        self.data.get(name)
+
+    def __iter__(self):
+        return self.data.__iter__()
