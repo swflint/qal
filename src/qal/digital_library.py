@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# This file is a part of `scrape_acad_library`.
+# This file is a part of `qal`.
 #
 # Copyright (c) 2021, University of Nebraska Board of Regents.
 #
@@ -155,7 +155,7 @@ class DigitalLibrary(metaclass=ABCMeta):
     def process_results(self, results):
         """Process results (takes a request response object).
 
-         - This should return a list of scrape_acad_library.types.Publication.
+         - This should return a list of qal.types.Publication.
          - If an un-recoverable error occurs, set self.error to true, otherwise, try to recover it."""
         raise NotImplementedError("Must define result processing logic.")
 

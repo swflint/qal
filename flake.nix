@@ -14,9 +14,9 @@
       in
       rec {
         packages = rec {
-          scrape-acad-library = pkgs.python3.pkgs.buildPythonPackage {
-            pname = "scrape_acad_library";
-            version = "0.5.0";
+          qal = pkgs.python3.pkgs.buildPythonPackage {
+            pname = "qal";
+            version = "1.0.0";
             src = ./.;
             propagatedBuildInputs = with pkgs.python3.pkgs ; [
               urllib3
@@ -33,7 +33,7 @@
             backoff
             jsonpickle
             tqdm
-            scrape-acad-library
+            qal
             ipython
           ]);
 
@@ -44,7 +44,7 @@
             ];
           };
         };
-        defaultPackage = packages.scrape-acad-library;
+        defaultPackage = packages.qal;
         devShell = packages.developmentEnvironment;
       }
     );

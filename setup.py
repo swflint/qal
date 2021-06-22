@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# This file is a part of `scrape_acad_library`.
+# This file is a part of `qal`.
 #
 # Copyright (c) 2021, University of Nebraska Board of Regents.
 #
@@ -26,8 +26,8 @@
 
 from setuptools import setup, find_packages
 
-setup(name="scrape_acad_library",
-      version="0.5.0",
+setup(name="qal",
+      version="1.0.0",
       description="A tool for systematically querying various academic publishing databases.",
       author="Samuel W. Flint",
       author_email="swflint@flintfam.org",

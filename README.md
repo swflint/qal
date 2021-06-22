@@ -12,6 +12,8 @@ Other digital libraries and document repositories are in the works (including Wi
 
 ### `query-acad-library`
 
+This tool can be used to try queries out on different digital libraries, as well as discover information about the capabilities and query options of each individual library.
+
 ### `auto-query`
 
 ## Obtaining API Keys

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# This file is a part of `scrape_acad_library`.
+# This file is a part of `qal`.
 #
 # Copyright (c) 2021, University of Nebraska Board of Regents.
 #
