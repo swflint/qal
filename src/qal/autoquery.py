@@ -140,13 +140,17 @@ def main():
         status['incomplete'] = num_sites * num_queries
         status['batches'] = []
         status['max_batches'] = 10
-        for i in range(num_sites):
+        for j in range(num_sites):
             row = []
             has_results = []
             batches = []
             for i in range(num_queries):
                 row.append({})
-                has_results.append(True)
+                if plan['sites'][i]['enabled']:
+                    has_results.append(True)
+                else:
+                    has_results.append(False)
+                    status['incomplete'] -= 1
                 batches.append(10)
             status['statuses'].append(row)
             status['has_results'].append(has_results)
