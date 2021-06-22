@@ -54,7 +54,7 @@ class ResultsStore:
         if item.identifier in self.data.keys():
             self.data[item.identifier] = item
         if (source != None) and (query != None):
-            self.data[item].add_search_terms(source, query)
+            self.data[item.identifier].add_search_terms(source, query)
         if self.saviness > 0:
             self.num += 1
             if (self.num % self.saviness) == 0:
