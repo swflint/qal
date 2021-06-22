@@ -34,6 +34,8 @@
             jsonpickle
             tqdm
             qal
+            build
+            twine
             ipython
           ]);
 
