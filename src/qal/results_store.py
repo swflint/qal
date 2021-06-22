@@ -42,10 +42,10 @@ class ResultsStore:
         self.num = 0
 
     def save(self):
-        if osp.exists(self.filename):
-            LOGGER.info("Backing up results store to %s.bak.", self.filename)
-            os.replace(self.filename, f"{self.filename}.bak")
-        with open(self.filename, 'w') as fd:
+        if osp.exists(self.file_name):
+            LOGGER.info("Backing up results store to %s.bak.", self.file_name)
+            os.replace(self.file_name, f"{self.file_name}.bak")
+        with open(self.file_name, 'w') as fd:
             LOGGER.debug("Saving results store.")
             fd.write(jsonpickle.encode(self.data))
             LOGGER.debug("Results store saved.")
