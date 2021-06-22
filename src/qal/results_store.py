@@ -51,7 +51,7 @@ class ResultsStore:
             LOGGER.debug("Results store saved.")
 
     def add_item(self, item, source=None, query=None):
-        if item.identifier in self.data.keys():
+        if item.identifier not in self.data.keys():
             self.data[item.identifier] = item
         if (source != None) and (query != None):
             self.data[item.identifier].add_search_terms(source, query)
